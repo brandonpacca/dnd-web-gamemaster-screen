@@ -261,6 +261,114 @@
     { e: "Tutti gli incantesimi che lanci entro il prossimo minuto falliscono automaticamente.", m: "La tua Costituzione diminuisce di 2 per 1 ora.", n: "Perdi immediatamente un punto stregoneria non speso." }
   ];
 
+  // ---- Tavern generator data ----
+
+  var TAVERN_NOUNS = [
+    { w: 'Cinghiale', g: 'm' }, { w: 'Drago', g: 'm' }, { w: 'Lupo', g: 'm' }, { w: 'Corvo', g: 'm' },
+    { w: 'Grifone', g: 'm' }, { w: 'Barile', g: 'm' }, { w: 'Calice', g: 'm' }, { w: 'Falco', g: 'm' },
+    { w: 'Orso', g: 'm' }, { w: 'Martello', g: 'm' }, { w: 'Scudo', g: 'm' }, { w: 'Pellegrino', g: 'm' },
+    { w: 'Sirena', g: 'f' }, { w: 'Volpe', g: 'f' }, { w: 'Civetta', g: 'f' }, { w: 'Candela', g: 'f' },
+    { w: 'Luna', g: 'f' }, { w: 'Stella', g: 'f' }, { w: 'Fenice', g: 'f' }, { w: 'Ancora', g: 'f' },
+    { w: 'Spada', g: 'f' }, { w: 'Quercia', g: 'f' }
+  ];
+
+  var TAVERN_ADJECTIVES = [
+    { m: 'Ubriaco', f: 'Ubriaca' }, { m: 'Dorato', f: 'Dorata' }, { m: 'Allegro', f: 'Allegra' },
+    { m: 'Danzante', f: 'Danzante' }, { m: 'Fedele', f: 'Fedele' }, { m: 'Silenzioso', f: 'Silenziosa' },
+    { m: 'Sonnolento', f: 'Sonnolenta' }, { m: 'Rosso', f: 'Rossa' }, { m: 'Arrugginito', f: 'Arrugginita' },
+    { m: 'Stanco', f: 'Stanca' }, { m: 'Sorridente', f: 'Sorridente' }, { m: 'Chiacchierone', f: 'Chiacchierona' },
+    { m: 'Barbuto', f: 'Barbuta' }, { m: 'Zoppo', f: 'Zoppa' }, { m: 'Ubriacone', f: 'Ubriacona' }
+  ];
+
+  var TAVERN_DRINKS = [
+    { name: 'Birra scura', price: '4 mr' }, { name: 'Birra chiara', price: '3 mr' },
+    { name: 'Idromele speziato', price: '6 mr' }, { name: 'Vino della casa', price: '2 ma' },
+    { name: 'Vino pregiato', price: '8 ma' }, { name: 'Sidro di mele', price: '3 mr' },
+    { name: 'Acquavite di grano', price: '5 ma' }, { name: 'Tè alle erbe', price: '2 mr' },
+    { name: 'Latte caldo', price: '1 mr' }, { name: 'Acqua fresca', price: 'gratis' },
+    { name: 'Grog del marinaio', price: '4 ma' }, { name: 'Liquore alle bacche', price: '6 ma' },
+    { name: 'Sciroppo di zenzero caldo', price: '2 mr' }
+  ];
+
+  var TAVERN_FOODS = [
+    { name: 'Zuppa del giorno', price: '3 mr' }, { name: 'Stufato di manzo', price: '5 mr' },
+    { name: 'Pane e formaggio', price: '2 mr' }, { name: 'Pollo arrosto', price: '6 mr' },
+    { name: 'Pesce alla griglia', price: '5 mr' }, { name: 'Cosciotto di maiale', price: '8 mr' },
+    { name: 'Torta di mele', price: '3 mr' }, { name: 'Focaccia alle erbe', price: '2 mr' },
+    { name: 'Piatto di formaggi misti', price: '4 mr' }, { name: 'Minestra di legumi', price: '2 mr' },
+    { name: 'Salsicce speziate', price: '4 mr' }, { name: 'Frutta di stagione', price: '1 mr' },
+    { name: 'Selvaggina in umido', price: '9 mr' }, { name: 'Ostriche fresche', price: '1 ma' }
+  ];
+
+  var TAVERN_ROOM_TIERS = [
+    { label: 'Povera (giaciglio di paglia in comune)', price: '2 ma' },
+    { label: 'Modesta (camera semplice)', price: '5 ma' },
+    { label: 'Modesta (camera semplice)', price: '5 ma' },
+    { label: 'Confortevole (camera privata pulita)', price: '8 ma' },
+    { label: 'Confortevole (camera privata pulita)', price: '8 ma' },
+    { label: 'Di lusso (camera con camino e bagno privato)', price: '2 mo' }
+  ];
+
+  var TAVERN_PHYSICAL_TRAITS = [
+    'alto e magro come una pertica', 'basso e tarchiato', 'robusto e dalle spalle larghe',
+    'esile e dai movimenti nervosi', 'anziano, con la schiena curva', 'giovane e dai lineamenti delicati',
+    'con una vistosa cicatrice sul volto', 'con capelli grigi legati in una coda', 'calvo e dalla pelle abbronzata',
+    'con una folta barba intrecciata', 'con due occhi di colore diverso', 'tatuato dalle braccia al collo',
+    'con un dente d\'oro sempre in mostra', 'claudicante, si appoggia a un bastone', 'con mani callose da lavoratore',
+    'dal naso storto, rotto più di una volta', 'con un vistoso anello a ogni dito'
+  ];
+
+  var TAVERN_PERSONALITY_TRAITS = [
+    'chiacchierone e sempre pronto a una battuta', 'diffidente verso gli sconosciuti',
+    'ossessionato dal pulire ogni superficie', 'superstizioso, tocca ferro a ogni piè sospinto',
+    'generoso ma distratto', 'avaro e sempre pronto a contrattare', 'timido, parla quasi sottovoce',
+    'arrogante, si vanta di imprese mai compiute', 'malinconico, guarda spesso fuori dalla finestra',
+    'curioso, fa sempre troppe domande', 'brillo fin dal primo pomeriggio', 'protettivo verso gli altri avventori',
+    'ambizioso, sogna di lasciare il villaggio', 'pigro, il minimo sforzo è già troppo',
+    'onesto fino all\'eccesso, non sa mentire'
+  ];
+
+  var TAVERN_NPC_ROLES = [
+    'Avventore abituale', 'Mercante di passaggio', 'Cacciatore di taglie', 'Menestrello',
+    'Guardia fuori servizio', 'Contadino', 'Marinaio', 'Ex-avventuriero', 'Sacerdote itinerante',
+    'Fabbro', 'Viaggiatore misterioso', 'Ubriacone del villaggio', 'Giocatore d\'azzardo', 'Cantastorie'
+  ];
+
+  var TAVERN_GOSSIP = [
+    'Dicono che nelle rovine a nord si aggirino luci spettrali di notte.',
+    'Il fabbro del villaggio sarebbe indebitato fino al collo con un mercante di passaggio.',
+    'Una nave mercantile è scomparsa nella nebbia al largo della costa, senza lasciare traccia.',
+    'Il signore locale avrebbe assunto mercenari per "ripulire" la foresta vicina.',
+    'Si vocifera che il pozzo del villaggio sia stato avvelenato da qualcuno di una locanda rivale.',
+    'Un gruppo di avventurieri non ha fatto ritorno dalla vecchia miniera abbandonata.',
+    'La figlia del mugnaio sarebbe scomparsa nel bosco tre notti fa.',
+    'Pare che un drago sia stato avvistato volare basso sulle colline a est.',
+    'Le tasse aumenteranno di nuovo, secondo una fonte vicina al castello.',
+    'Un mercante ambulante vende amuleti che "proteggono dai non morti", ma sembrano solo cianfrusaglie.',
+    'Qualcuno ha visto luci strane provenire dal cimitero, la notte scorsa.',
+    'Il capo delle guardie avrebbe accettato una tangente per lasciar passare un carico sospetto.',
+    'Una setta segreta si riunirebbe nelle cantine sotto la vecchia chiesa.',
+    'I lupi sono diventati insolitamente aggressivi nell\'ultimo mese, quasi obbedissero a qualcuno.',
+    'Si dice che uno spirito infesti la camera al piano di sopra.',
+    'Un nobile in incognito starebbe cercando compagni per una missione pericolosa.',
+    'Il fiume si è tinto di rosso per un giorno intero, due settimane fa.',
+    'Qualcuno giura di aver visto un tesoro sepolto segnato su una vecchia mappa strappata.',
+    'Le guardie cercano un ladro che ha rubato un artefatto dal tempio.',
+    'Gli animali della fattoria vicina sono stati trovati dissanguati, senza una goccia di sangue.'
+  ];
+
+  function pickN(arr, n) {
+    var copy = arr.slice();
+    var out = [];
+    n = Math.min(n, copy.length);
+    for (var i = 0; i < n; i++) {
+      var idx = Math.floor(Math.random() * copy.length);
+      out.push(copy[idx]);
+      copy.splice(idx, 1);
+    }
+    return out;
+  }
+
   var state = loadState();
   var timerInterval = null;
 
@@ -906,6 +1014,113 @@
     if (history.length <= 1) { container.textContent = ''; return; }
     container.textContent = 'Precedenti: ' + history.slice(1).join(', ');
   }
+
+  // ---------------- TAVERN GENERATOR ----------------
+
+  function generateTavernName() {
+    var noun = randChoice(TAVERN_NOUNS);
+    var adj = randChoice(TAVERN_ADJECTIVES);
+    var adjForm = noun.g === 'f' ? adj.f : adj.m;
+    if (Math.random() < 0.4) {
+      var articleDel = noun.g === 'f' ? 'della' : 'del';
+      return 'La Taverna ' + articleDel + ' ' + noun.w + ' ' + adjForm;
+    }
+    var article = noun.g === 'f' ? 'La' : 'Il';
+    return article + ' ' + noun.w + ' ' + adjForm;
+  }
+
+  function generateInnkeeper() {
+    var race = randChoice(['human', 'human', 'dwarf', 'halfling']);
+    var gender = Math.random() < 0.5 ? 'male' : 'female';
+    var name = generateNpcName(race, gender, false);
+    var phys = randChoice(TAVERN_PHYSICAL_TRAITS);
+    var pers = randChoice(TAVERN_PERSONALITY_TRAITS);
+    return { name: name, trait: phys + ', ' + pers + '.' };
+  }
+
+  function generateTavernNpc() {
+    var race = randChoice(RACE_ORDER).key;
+    var gender = Math.random() < 0.5 ? 'male' : 'female';
+    var name = generateNpcName(race, gender, false);
+    var role = randChoice(TAVERN_NPC_ROLES);
+    var phys = randChoice(TAVERN_PHYSICAL_TRAITS);
+    var pers = randChoice(TAVERN_PERSONALITY_TRAITS);
+    return { name: name, role: role, desc: 'Aspetto: ' + phys + '. Carattere: ' + pers + '.' };
+  }
+
+  function generateTavern() {
+    var hasRooms = Math.random() < 0.85;
+    var room = hasRooms ? randChoice(TAVERN_ROOM_TIERS) : null;
+    var roomCount = hasRooms ? (2 + Math.floor(Math.random() * 7)) : 0;
+    var npcCount = 2 + Math.floor(Math.random() * 3);
+    var npcs = [];
+    for (var i = 0; i < npcCount; i++) npcs.push(generateTavernNpc());
+    var gossipCount = 2 + Math.floor(Math.random() * 2);
+    var gossip = pickN(TAVERN_GOSSIP, gossipCount).map(function (text) {
+      return { text: text, teller: randChoice(npcs).name };
+    });
+    return {
+      name: generateTavernName(),
+      innkeeper: generateInnkeeper(),
+      drinks: pickN(TAVERN_DRINKS, 4 + Math.floor(Math.random() * 2)),
+      foods: pickN(TAVERN_FOODS, 5 + Math.floor(Math.random() * 2)),
+      hasRooms: hasRooms, room: room, roomCount: roomCount,
+      npcs: npcs, gossip: gossip
+    };
+  }
+
+  function renderTavern(t) {
+    var wrap = document.getElementById('tavernResult');
+    wrap.innerHTML = '';
+
+    var header = el('div', { class: 'tavern-header' }, [
+      el('h3', { class: 'tavern-name', text: t.name }),
+      el('div', { class: 'tavern-innkeeper', text: 'Locandiere: ' + t.innkeeper.name + ' — ' + t.innkeeper.trait })
+    ]);
+
+    var lodgingText = t.hasRooms
+      ? ('🛏️ Posti letto disponibili (' + t.roomCount + ' stanze) — ' + t.room.label + ': ' + t.room.price + ' a persona/notte')
+      : '🛏️ Nessun posto letto disponibile: solo mescita.';
+    var lodging = el('div', { class: 'tavern-lodging', text: lodgingText });
+
+    var menuWrap = el('div', { class: 'tavern-columns' }, [
+      el('div', {}, [
+        el('h4', { text: 'Bevande' }),
+        el('ul', { class: 'tavern-menu-list' }, t.drinks.map(function (d) {
+          return el('li', {}, [el('span', { text: d.name }), el('span', { class: 'tavern-price', text: d.price })]);
+        }))
+      ]),
+      el('div', {}, [
+        el('h4', { text: 'Cibo' }),
+        el('ul', { class: 'tavern-menu-list' }, t.foods.map(function (f) {
+          return el('li', {}, [el('span', { text: f.name }), el('span', { class: 'tavern-price', text: f.price })]);
+        }))
+      ])
+    ]);
+
+    var npcSection = el('div', {}, [
+      el('h4', { text: 'PNG presenti in locanda' }),
+      el('div', { class: 'tavern-npc-grid' }, t.npcs.map(function (n) {
+        return el('div', { class: 'tavern-npc-card' }, [
+          el('div', { class: 'tavern-npc-name', text: n.name + ' — ' + n.role }),
+          el('div', { class: 'tavern-npc-desc', text: n.desc })
+        ]);
+      }))
+    ]);
+
+    var gossipSection = el('div', {}, [
+      el('h4', { text: 'Gossip' }),
+      el('ul', { class: 'tavern-gossip-list' }, t.gossip.map(function (g) {
+        return el('li', {}, [el('strong', { text: g.teller + ': ' }), document.createTextNode('"' + g.text + '"')]);
+      }))
+    ]);
+
+    wrap.appendChild(el('div', { class: 'tavern-sheet' }, [header, lodging, menuWrap, npcSection, gossipSection]));
+  }
+
+  document.getElementById('tavernGenBtn').addEventListener('click', function () {
+    renderTavern(generateTavern());
+  });
 
   // ---------------- ENCOUNTER BUILDER (Kobold Fight Club style) ----------------
 
