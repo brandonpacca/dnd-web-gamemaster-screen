@@ -1,0 +1,491 @@
+:root {
+  --parchment: #eee5ce;
+  --parchment-dark: #e0d3ac;
+  --ink: #2b1b12;
+  --maroon: #58180d;
+  --maroon-dark: #3b0f07;
+  --gold: #c9ad6a;
+  --gold-light: #ddc78a;
+  --green: #2f5d34;
+  --red: #7a1e14;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 24px 12px 60px;
+  background: #4b3520;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.03), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(0,0,0,0.15), transparent 50%);
+  font-family: 'EB Garamond', 'Georgia', serif;
+  color: var(--ink);
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  background:
+    repeating-radial-gradient(circle at 10% 20%, rgba(120,90,50,0.05) 0, transparent 3px),
+    repeating-radial-gradient(circle at 80% 60%, rgba(120,90,50,0.05) 0, transparent 4px),
+    linear-gradient(180deg, var(--parchment) 0%, var(--parchment-dark) 100%);
+  border: 10px solid var(--maroon);
+  outline: 3px solid var(--gold);
+  outline-offset: -16px;
+  border-radius: 4px;
+  padding: 32px 40px 40px;
+  box-shadow: 0 0 40px rgba(0,0,0,0.6), inset 0 0 120px rgba(88,24,13,0.08);
+  position: relative;
+}
+
+.hb-title {
+  text-align: center;
+  border-bottom: 3px double var(--maroon);
+  padding-bottom: 14px;
+  margin-bottom: 28px;
+}
+
+.hb-title h1 {
+  font-family: 'MedievalSharp', cursive;
+  color: var(--maroon);
+  font-size: 2.6em;
+  margin: 0 0 6px;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.4);
+}
+
+.hb-title .subtitle {
+  font-style: italic;
+  color: #6b4a2b;
+  margin: 0;
+  font-size: 1.1em;
+}
+
+.hb-section {
+  margin-bottom: 34px;
+}
+
+.section-title {
+  font-family: 'MedievalSharp', cursive;
+  color: #fff;
+  background: linear-gradient(90deg, var(--maroon) 0%, var(--maroon-dark) 100%);
+  padding: 8px 16px;
+  border-radius: 3px;
+  border: 1px solid var(--gold);
+  font-size: 1.3em;
+  letter-spacing: 0.5px;
+  margin: 0 0 16px;
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+.group-title {
+  font-family: 'MedievalSharp', cursive;
+  font-size: 1.05em;
+  margin: 10px 0 8px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--gold);
+}
+.enemy-title { color: var(--red); }
+.ally-title { color: var(--green); }
+
+/* ---------- Round & Time trackers ---------- */
+
+.tracker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.tracker-box {
+  background: rgba(255,255,255,0.35);
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  padding: 14px 18px;
+  text-align: center;
+}
+
+.tracker-box h2 {
+  font-family: 'MedievalSharp', cursive;
+  color: var(--maroon);
+  font-size: 1.1em;
+  margin: 0 0 8px;
+}
+
+.round-display {
+  font-family: 'MedievalSharp', cursive;
+  font-size: 3em;
+  color: var(--maroon-dark);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.time-display {
+  font-family: 'MedievalSharp', cursive;
+  font-size: 2.2em;
+  color: var(--maroon-dark);
+  line-height: 1;
+  margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ingame-time {
+  margin-top: 10px;
+  font-size: 0.95em;
+  color: #4a3420;
+}
+
+.small-label {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.85em;
+}
+
+.small-label input {
+  width: 50px;
+  margin-left: 4px;
+}
+
+.btn-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ---------- Buttons & inputs ---------- */
+
+button {
+  font-family: 'EB Garamond', serif;
+  font-weight: 600;
+  background: linear-gradient(180deg, var(--gold-light), var(--gold));
+  color: var(--maroon-dark);
+  border: 1px solid var(--maroon);
+  border-radius: 4px;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-size: 0.95em;
+  transition: transform 0.05s ease, filter 0.15s ease;
+}
+button:hover { filter: brightness(1.08); }
+button:active { transform: translateY(1px); }
+
+.btn-small {
+  min-width: 36px;
+  font-size: 1.2em;
+  padding: 2px 10px;
+}
+
+.btn-secondary {
+  background: linear-gradient(180deg, #d8cba8, #c2b18a);
+}
+
+.btn-danger {
+  background: linear-gradient(180deg, #b23a2b, var(--red));
+  color: #fff;
+  border-color: var(--maroon-dark);
+}
+
+.btn-remove {
+  background: transparent;
+  border: none;
+  color: var(--red);
+  font-weight: bold;
+  font-size: 1.1em;
+  padding: 0 6px;
+  cursor: pointer;
+}
+.btn-remove:hover { color: var(--maroon-dark); }
+
+input, select {
+  font-family: 'EB Garamond', serif;
+  border: 1px solid #a98f5c;
+  border-radius: 3px;
+  background: #fbf6e9;
+  padding: 5px 8px;
+  font-size: 0.95em;
+  color: var(--ink);
+}
+
+input:focus, select:focus {
+  outline: 2px solid var(--gold);
+}
+
+input[type="number"] { width: 80px; }
+
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--gold);
+}
+
+.pc-form input[type="text"], .npc-form input[type="text"] { width: 160px; }
+
+/* ---------- Casters / spell slots ---------- */
+
+.caster-card, .rage-card {
+  background: rgba(255,255,255,0.4);
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+
+.caster-header, .rage-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.caster-header .name, .rage-header .name {
+  font-weight: 700;
+  color: var(--maroon);
+  font-size: 1.1em;
+}
+
+.caster-levels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.level-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,255,255,0.3);
+  border: 1px solid #cbb87f;
+  border-radius: 4px;
+  padding: 6px 10px;
+}
+
+.level-label {
+  font-size: 0.8em;
+  font-weight: 700;
+  color: #4a3420;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pips {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  max-width: 140px;
+}
+
+.pip {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--maroon);
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
+}
+
+.pip.used {
+  background: var(--maroon);
+}
+
+.level-remove {
+  background: transparent;
+  border: none;
+  color: var(--red);
+  font-size: 0.75em;
+  cursor: pointer;
+  padding: 0;
+}
+
+.add-level-form {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 10px;
+}
+.add-level-form select, .add-level-form input { width: auto; }
+.add-level-form input[type="number"] { width: 60px; }
+
+/* ---------- Rage ---------- */
+
+.rage-pips .pip {
+  width: 22px;
+  height: 22px;
+  border-color: #7a3b0a;
+}
+.rage-pips .pip.used {
+  background: #b3541a;
+}
+
+.rage-count {
+  font-size: 0.9em;
+  color: #4a3420;
+  margin-left: 8px;
+}
+
+/* ---------- Table ---------- */
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+}
+
+.hb-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255,255,255,0.35);
+  min-width: 640px;
+}
+
+.hb-table thead th {
+  background: linear-gradient(180deg, var(--maroon), var(--maroon-dark));
+  color: #fff;
+  padding: 10px 12px;
+  text-align: left;
+  font-family: 'MedievalSharp', cursive;
+  font-weight: normal;
+  font-size: 0.95em;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.hb-table thead th:hover { background: linear-gradient(180deg, #6f2010, var(--maroon-dark)); }
+.hb-table thead th.col-actions { cursor: default; }
+.hb-table thead th.col-actions:hover { background: linear-gradient(180deg, var(--maroon), var(--maroon-dark)); }
+
+.sort-arrow { font-size: 0.8em; }
+
+.hb-table tbody tr:nth-child(odd) { background: rgba(201,173,106,0.12); }
+.hb-table tbody tr:hover { background: rgba(201,173,106,0.28); }
+
+.hb-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid #d8c79a;
+  vertical-align: middle;
+}
+
+.hb-table td input[type="text"] { width: 130px; }
+.hb-table td input[type="number"] { width: 64px; }
+
+.condition-checks {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+.condition-checks label { display: flex; align-items: center; gap: 3px; cursor: pointer; }
+
+.condition-badges {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.badge {
+  font-size: 0.75em;
+  background: var(--red);
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+/* ---------- NPC cards ---------- */
+
+.npc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.npc-card {
+  background: rgba(255,255,255,0.4);
+  border: 1px solid var(--gold);
+  border-left: 5px solid var(--red);
+  border-radius: 6px;
+  padding: 10px 14px;
+}
+
+.npc-card.ally { border-left-color: var(--green); }
+
+.npc-card .npc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.npc-card .npc-header input[type="text"] {
+  font-weight: 700;
+  color: var(--maroon);
+  border: none;
+  background: transparent;
+  font-size: 1.05em;
+  width: 130px;
+  padding: 2px 0;
+  border-bottom: 1px dashed transparent;
+}
+.npc-card .npc-header input[type="text"]:focus { border-bottom: 1px dashed var(--gold); }
+
+.npc-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 10px;
+  font-size: 0.9em;
+}
+
+.npc-stats label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.78em;
+  color: #4a3420;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  gap: 2px;
+}
+
+.npc-stats input { width: 100%; }
+
+.npc-condition {
+  margin-top: 8px;
+  display: flex;
+  gap: 10px;
+  font-size: 0.85em;
+}
+.npc-condition label { display: flex; align-items: center; gap: 3px; cursor: pointer; }
+
+.empty-hint {
+  font-style: italic;
+  color: #7a6444;
+  padding: 6px 2px;
+}
+
+.footer-actions {
+  text-align: center;
+  margin-top: 30px;
+  border-top: 3px double var(--maroon);
+  padding-top: 20px;
+}
+
+.hb-footer {
+  text-align: center;
+  font-size: 0.8em;
+  color: #7a6444;
+  margin-top: 14px;
+  font-style: italic;
+}
+
+@media (max-width: 640px) {
+  .page { padding: 20px 14px 30px; }
+  .hb-title h1 { font-size: 1.9em; }
+}

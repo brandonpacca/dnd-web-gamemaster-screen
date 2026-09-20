@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schermo del Game Master — Tracciamento Combattimento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="hb-title">
+    <h1>Schermo del Game Master</h1>
+    <p class="subtitle">Tracciamento del Combattimento — D&amp;D 5e</p>
+  </header>
+
+  <section class="hb-section">
+    <div class="tracker-grid">
+
+      <div class="tracker-box">
+        <h2>Round</h2>
+        <div class="round-display" id="roundDisplay">0</div>
+        <div class="btn-row">
+          <button type="button" id="roundMinus" class="btn-small">−</button>
+          <button type="button" id="roundPlus" class="btn-small">+</button>
+          <button type="button" id="roundReset" class="btn-secondary">Azzera</button>
+        </div>
+      </div>
+
+      <div class="tracker-box">
+        <h2>Tempo Trascorso</h2>
+        <div class="time-display" id="timeDisplay">00:00:00</div>
+        <div class="btn-row">
+          <button type="button" id="timeStartPause">Avvia</button>
+          <button type="button" id="timeReset" class="btn-secondary">Azzera</button>
+        </div>
+        <div class="ingame-time">
+          Tempo di gioco stimato: <strong id="ingameTime">0s</strong><br>
+          <label class="small-label">secondi/round
+            <input type="number" id="secPerRound" min="1" value="6">
+          </label>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="hb-section">
+    <h2 class="section-title">Spell Slot dei Caster</h2>
+    <div id="casterList" class="caster-list"></div>
+    <form id="addCasterForm" class="inline-form">
+      <input type="text" id="newCasterName" placeholder="Nome del caster" required>
+      <button type="submit">+ Aggiungi Caster</button>
+    </form>
+  </section>
+
+  <section class="hb-section">
+    <h2 class="section-title">Ira del Barbaro</h2>
+    <div id="rageList" class="rage-list"></div>
+    <form id="addRageForm" class="inline-form">
+      <input type="text" id="newRageName" placeholder="Nome del barbaro" required>
+      <input type="number" id="newRageMax" min="1" value="2" title="Numero massimo di ire">
+      <button type="submit">+ Aggiungi Barbaro</button>
+    </form>
+  </section>
+
+  <section class="hb-section">
+    <h2 class="section-title">Party</h2>
+    <div class="table-wrap">
+      <table id="partyTable" class="hb-table">
+        <thead>
+          <tr>
+            <th data-key="name">Nome PG <span class="sort-arrow"></span></th>
+            <th data-key="ac">CA <span class="sort-arrow"></span></th>
+            <th data-key="hp">PF <span class="sort-arrow"></span></th>
+            <th data-key="init">Iniziativa <span class="sort-arrow"></span></th>
+            <th data-key="damage">Danni subiti <span class="sort-arrow"></span></th>
+            <th data-key="condition">Condizione <span class="sort-arrow"></span></th>
+            <th class="col-actions"></th>
+          </tr>
+        </thead>
+        <tbody id="partyBody"></tbody>
+      </table>
+    </div>
+    <form id="addPcForm" class="inline-form pc-form">
+      <input type="text" id="pcName" placeholder="Nome PG" required>
+      <input type="number" id="pcAc" placeholder="CA" required>
+      <input type="number" id="pcHpCur" placeholder="PF attuali" required>
+      <input type="number" id="pcHpMax" placeholder="PF massimi" required>
+      <input type="number" id="pcInit" placeholder="Iniziativa" required>
+      <button type="submit">+ Aggiungi PG</button>
+    </form>
+  </section>
+
+  <section class="hb-section">
+    <h2 class="section-title">PNG in Combattimento</h2>
+
+    <h3 class="group-title enemy-title">Nemici</h3>
+    <div id="npcCardsEnemy" class="npc-grid"></div>
+
+    <h3 class="group-title ally-title">Alleati</h3>
+    <div id="npcCardsAlly" class="npc-grid"></div>
+
+    <form id="addNpcForm" class="inline-form npc-form">
+      <input type="text" id="npcName" placeholder="Nome PNG" required>
+      <select id="npcSide">
+        <option value="enemy">Nemico</option>
+        <option value="ally">Alleato</option>
+      </select>
+      <input type="number" id="npcAc" placeholder="CA" required>
+      <input type="number" id="npcHpCur" placeholder="PF attuali" required>
+      <input type="number" id="npcHpMax" placeholder="PF massimi" required>
+      <input type="number" id="npcInit" placeholder="Iniziativa" value="0">
+      <button type="submit">+ Aggiungi PNG</button>
+    </form>
+  </section>
+
+  <div class="footer-actions">
+    <button type="button" id="resetAll" class="btn-danger">Nuovo Combattimento (azzera tutto)</button>
+  </div>
+
+  <footer class="hb-footer">Dati salvati automaticamente nel browser (localStorage)</footer>
+
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>
