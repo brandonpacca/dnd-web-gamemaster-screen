@@ -15,8 +15,145 @@
     rages: [],     // { id, name, max, used }
     party: [],     // { id, name, ac, hpCur, hpMax, init, damage, prone, restrained }
     npcs: [],      // { id, name, side, ac, hpCur, hpMax, init, damage, prone, restrained }
-    sort: { key: null, dir: 1 }
+    sort: { key: null, dir: 1 },
+    encounter: {
+      partySize: 4,
+      partyLevel: 3,
+      monsters: [] // { id, name, cr, qty, ac, hp }
+    }
   };
+
+  // ---- Kobold Fight Club style encounter-building data (5e DMG methodology) ----
+
+  var CR_XP = [
+    { cr: '0', xp: 10 }, { cr: '1/8', xp: 25 }, { cr: '1/4', xp: 50 }, { cr: '1/2', xp: 100 },
+    { cr: '1', xp: 200 }, { cr: '2', xp: 450 }, { cr: '3', xp: 700 }, { cr: '4', xp: 1100 },
+    { cr: '5', xp: 1800 }, { cr: '6', xp: 2300 }, { cr: '7', xp: 2900 }, { cr: '8', xp: 3900 },
+    { cr: '9', xp: 5000 }, { cr: '10', xp: 5900 }, { cr: '11', xp: 7200 }, { cr: '12', xp: 8400 },
+    { cr: '13', xp: 10000 }, { cr: '14', xp: 11500 }, { cr: '15', xp: 13000 }, { cr: '16', xp: 15000 },
+    { cr: '17', xp: 18000 }, { cr: '18', xp: 20000 }, { cr: '19', xp: 22000 }, { cr: '20', xp: 25000 },
+    { cr: '21', xp: 33000 }, { cr: '22', xp: 41000 }, { cr: '23', xp: 50000 }, { cr: '24', xp: 62000 },
+    { cr: '25', xp: 75000 }, { cr: '26', xp: 90000 }, { cr: '27', xp: 105000 }, { cr: '28', xp: 120000 },
+    { cr: '29', xp: 135000 }, { cr: '30', xp: 155000 }
+  ];
+
+  var XP_THRESHOLDS = {
+    1: [25, 50, 75, 100], 2: [50, 100, 150, 200], 3: [75, 150, 225, 400], 4: [125, 250, 375, 500],
+    5: [250, 500, 750, 1100], 6: [300, 600, 900, 1400], 7: [350, 750, 1100, 1700], 8: [450, 900, 1400, 2100],
+    9: [550, 1100, 1600, 2400], 10: [600, 1200, 1900, 2800], 11: [800, 1600, 2400, 3600], 12: [1000, 2000, 3000, 4500],
+    13: [1100, 2200, 3400, 5100], 14: [1250, 2500, 3800, 5700], 15: [1400, 2800, 4300, 6400], 16: [1600, 3200, 4800, 7200],
+    17: [2000, 3900, 5900, 8800], 18: [2100, 4200, 6300, 9500], 19: [2400, 4900, 7300, 10900], 20: [2800, 5700, 8500, 12700]
+  };
+
+  function xpForCr(cr) {
+    var entry = CR_XP.find(function (e) { return e.cr === cr; });
+    return entry ? entry.xp : 0;
+  }
+
+  var MULTIPLIER_SEQUENCE = [1, 1.5, 2, 2.5, 3, 4];
+
+  function multiplierIndexForCount(count) {
+    if (count <= 1) return 0;
+    if (count === 2) return 1;
+    if (count <= 6) return 2;
+    if (count <= 10) return 3;
+    if (count <= 14) return 4;
+    return 5;
+  }
+
+  function effectiveMultiplier(count, partySize) {
+    var idx = multiplierIndexForCount(count);
+    if (partySize < 3) idx = Math.min(idx + 1, MULTIPLIER_SEQUENCE.length - 1);
+    else if (partySize >= 6) idx = Math.max(idx - 1, 0);
+    return MULTIPLIER_SEQUENCE[idx];
+  }
+
+  function difficultyForXp(adjustedXp, thresholds) {
+    if (adjustedXp < thresholds[0]) return { label: 'Banale', cls: 'diff-trivial' };
+    if (adjustedXp < thresholds[1]) return { label: 'Facile', cls: 'diff-easy' };
+    if (adjustedXp < thresholds[2]) return { label: 'Medio', cls: 'diff-medium' };
+    if (adjustedXp < thresholds[3]) return { label: 'Difficile', cls: 'diff-hard' };
+    return { label: 'Mortale', cls: 'diff-deadly' };
+  }
+
+  // ---- Fantasy name generator data ----
+
+  var RACE_ORDER = [
+    { key: 'human', label: 'Umano' },
+    { key: 'elf', label: 'Elfo' },
+    { key: 'dwarf', label: 'Nano' },
+    { key: 'halfling', label: 'Halfling' },
+    { key: 'orc', label: 'Orco/Goblin' },
+    { key: 'undead', label: 'Oscuro/Non-morto' }
+  ];
+
+  var NPC_NAMES = {
+    human: {
+      male: ['Aldric', 'Bryndon', 'Cedric', 'Doran', 'Edmund', 'Faelan', 'Garrick', 'Henrik', 'Ivor', 'Jasper', 'Kellan', 'Leofric', 'Magnus', 'Nolan', 'Osric', 'Quentin', 'Roderic', 'Soren', 'Tobias', 'Wendell'],
+      female: ['Adelina', 'Brianne', 'Cassia', 'Delyth', 'Elowen', 'Fiora', 'Genevra', 'Hilde', 'Iris', 'Jocelyn', 'Katriona', 'Lysandra', 'Maren', 'Nessa', 'Odalys', 'Perrine', 'Rosalind', 'Seraphine', 'Tamsin', 'Wilhelmina']
+    },
+    elf: {
+      male: ['Aerendyl', 'Beliador', 'Caelthil', 'Duskryn', 'Erevan', 'Faelivrin', 'Galanor', 'Haemir', 'Ithilion', 'Kaelthorn', 'Lucanthil', 'Orenthil', 'Quillion', 'Rivendal', 'Silvyr', 'Thelanis', 'Varendil', 'Aramil', 'Berrian', 'Carric'],
+      female: ['Aelrindel', 'Briaris', 'Caelynn', 'Dariwen', 'Elowyn', 'Faelynn', 'Galinare', 'Ilyndra', 'Jariel', 'Keryth', 'Liriel', 'Myrandriel', 'Naivara', 'Orlaith', 'Sariel', 'Thessaly', 'Undomel', 'Vaelith', 'Wrenna', 'Yavara']
+    },
+    dwarf: {
+      male: ['Balin', 'Brogar', 'Durgrim', 'Eberk', 'Fargrim', 'Grundar', 'Harnik', 'Ivgar', 'Korvath', 'Maldrek', 'Norik', 'Orrik', 'Ragnvald', 'Skorri', 'Thorgar', 'Ulgrim', 'Vondal', 'Wulfric', 'Brenrik', 'Drakur'],
+      female: ['Alrun', 'Brenna', 'Disa', 'Eldrid', 'Frida', 'Gundra', 'Helka', 'Ingrun', 'Kadga', 'Liska', 'Modda', 'Norna', 'Ottila', 'Runa', 'Sigrun', 'Torhild', 'Ulfa', 'Vestra', 'Wenna', 'Yorna']
+    },
+    halfling: {
+      male: ['Alder', 'Bramwell', 'Corin', 'Doby', 'Elmo', 'Finnick', 'Garret', 'Hobb', 'Ivo', 'Jorey', 'Kip', 'Larkin', 'Merric', 'Nob', 'Otho', 'Pip', 'Rollo', 'Sam', 'Tobin', 'Wendic'],
+      female: ['Alfrida', 'Bree', 'Cora', 'Daisy', 'Elanor', 'Fennel', 'Gilly', 'Holly', 'Ivy', 'Jasmina', 'Kora', 'Lily', 'Merla', 'Nora', 'Orla', 'Poppy', 'Rosie', 'Sela', 'Tilly', 'Wilda']
+    },
+    orc: {
+      male: ['Grukk', 'Mogthar', 'Ruggash', 'Skarn', 'Thokk', 'Ugrat', 'Vrog', 'Zulgash', 'Bargol', 'Drazgul', 'Fesk', 'Gornak', 'Hrolk', 'Krusk', 'Morg', 'Nashgor', 'Orgul', 'Snagg', 'Throgg', 'Uzgash'],
+      female: ['Agra', 'Brakka', 'Chok', 'Drusha', 'Eska', 'Grak', 'Hulga', 'Krusha', 'Mogra', 'Nira', 'Orka', 'Rukha', 'Scaba', 'Thura', 'Urka', 'Vashka', 'Yagra', 'Zeeka', 'Bogra', 'Nashka']
+    },
+    undead: {
+      male: ['Malachar', 'Nyxander', 'Ossian', 'Ravenscar', 'Sythe', 'Thantos', 'Ulric Noir', 'Vaelkor', 'Wraithmoor', 'Xandrek', 'Zarnath', 'Corvain', 'Draven', 'Endros', 'Grimwald', 'Hadrix', 'Kravox', 'Lorthane', 'Morvain', 'Sablewynd'],
+      female: ['Ashara', 'Belladonna', 'Cyrenne', 'Duskara', 'Evanthe', 'Fenwraith', 'Grishenna', 'Isolde Noir', 'Lilivex', 'Morgwraith', 'Nyssara', 'Ravenna', 'Selvara', 'Thanawyn', 'Umbraline', 'Vexara', 'Wraithe', 'Xylara', 'Yveth', 'Zaralyn']
+    }
+  };
+
+  var EPITHETS = [
+    'il Coraggioso', 'la Silenziosa', 'Manoferrea', 'delle Nebbie', 'Piedeleggero', 'il Vagabondo',
+    'Occhiodifalco', 'la Saggia', 'il Temerario', 'delle Ombre', 'Cuordiquercia', 'la Instancabile',
+    'il Custode', 'delle Terre Perdute', 'Lamaacuta', 'il Silente', 'la Errante', 'Barbagrigia',
+    'Pugnodiferro', 'la Fiamma'
+  ];
+
+  var PLACE_TYPES = [
+    { key: 'any', label: 'Tipo casuale', variants: null },
+    { key: 'city', label: 'Città/Villaggio', variants: ['Città', 'Villaggio', 'Borgo', 'Cittadella'] },
+    { key: 'forest', label: 'Foresta/Bosco', variants: ['Foresta', 'Bosco', 'Selva'] },
+    { key: 'mountain', label: 'Montagna/Passo', variants: ['Montagna', 'Picco', 'Passo', 'Catena Montuosa'] },
+    { key: 'water', label: 'Fiume/Lago/Palude', variants: ['Fiume', 'Lago', 'Palude', 'Baia'] },
+    { key: 'ruin', label: 'Rovine/Fortezza', variants: ['Rovine', 'Fortezza Abbandonata', 'Cripta', 'Covo'] },
+    { key: 'realm', label: 'Regno/Terra', variants: ['Regno', 'Terra', 'Dominio', 'Contea'] }
+  ];
+
+  var PLACE_SYLL_1 = ['Thorn', 'Shadow', 'Iron', 'Storm', 'Raven', 'Dusk', 'Silver', 'Elden', 'Wyn', 'Gal', 'Mor', 'Val', 'Kel', 'Bran', 'Fen', 'Grim', 'Moon', 'Sun', 'Wolf', 'Drake', 'Frost', 'Ember', 'Night', 'Star', 'Blood', 'Whisper'];
+  var PLACE_SYLL_2 = ['haven', 'wood', 'mere', 'vale', 'moor', 'reach', 'fall', 'crest', 'hollow', 'shade', 'wick', 'brook', 'gate', 'spire', 'watch', 'keep', 'hold', 'crag', 'glen', 'marsh'];
+
+  function randChoice(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function generateNpcName(raceKey, genderKey, withEpithet) {
+    var race = NPC_NAMES[raceKey] || NPC_NAMES.human;
+    var gender = genderKey === 'any' ? (Math.random() < 0.5 ? 'male' : 'female') : genderKey;
+    var pool = race[gender] || race.male;
+    var name = randChoice(pool);
+    if (withEpithet) name += ' ' + randChoice(EPITHETS);
+    return name;
+  }
+
+  function generatePlaceName(typeKey) {
+    var candidates = typeKey === 'any' ? PLACE_TYPES.filter(function (t) { return t.key !== 'any'; }) : PLACE_TYPES.filter(function (t) { return t.key === typeKey; });
+    var type = randChoice(candidates);
+    var typeLabel = randChoice(type.variants);
+    var invented = randChoice(PLACE_SYLL_1) + randChoice(PLACE_SYLL_2).toLowerCase();
+    return typeLabel + ' di ' + invented;
+  }
 
   var state = loadState();
   var timerInterval = null;
@@ -611,6 +748,203 @@
     renderNpcs();
   });
 
+  // ---------------- NAME GENERATORS ----------------
+
+  var npcNameHistory = [];
+  var placeNameHistory = [];
+
+  function initNameGenerators() {
+    var raceSelect = document.getElementById('npcGenRace');
+    RACE_ORDER.forEach(function (r) {
+      raceSelect.appendChild(el('option', { value: r.key, text: r.label }));
+    });
+
+    var placeSelect = document.getElementById('placeGenType');
+    PLACE_TYPES.forEach(function (t) {
+      placeSelect.appendChild(el('option', { value: t.key, text: t.label }));
+    });
+
+    document.getElementById('npcGenBtn').addEventListener('click', function () {
+      var race = raceSelect.value;
+      var gender = document.getElementById('npcGenGender').value;
+      var withEpithet = document.getElementById('npcGenEpithet').checked;
+      var name = generateNpcName(race, gender, withEpithet);
+      document.getElementById('npcGenResult').textContent = name;
+      npcNameHistory.unshift(name);
+      npcNameHistory = npcNameHistory.slice(0, 5);
+      renderNameHistory('npcGenHistory', npcNameHistory);
+    });
+
+    document.getElementById('npcGenUsePc').addEventListener('click', function () {
+      var result = document.getElementById('npcGenResult').textContent;
+      if (result && result !== '—') document.getElementById('pcName').value = result;
+    });
+
+    document.getElementById('npcGenUseNpc').addEventListener('click', function () {
+      var result = document.getElementById('npcGenResult').textContent;
+      if (result && result !== '—') document.getElementById('npcName').value = result;
+    });
+
+    document.getElementById('placeGenBtn').addEventListener('click', function () {
+      var type = placeSelect.value;
+      var name = generatePlaceName(type);
+      document.getElementById('placeGenResult').textContent = name;
+      placeNameHistory.unshift(name);
+      placeNameHistory = placeNameHistory.slice(0, 5);
+      renderNameHistory('placeGenHistory', placeNameHistory);
+    });
+  }
+
+  function renderNameHistory(containerId, history) {
+    var container = document.getElementById(containerId);
+    if (history.length <= 1) { container.textContent = ''; return; }
+    container.textContent = 'Precedenti: ' + history.slice(1).join(', ');
+  }
+
+  // ---------------- ENCOUNTER BUILDER (Kobold Fight Club style) ----------------
+
+  function initEncounterCrSelect() {
+    var select = document.getElementById('monCr');
+    CR_XP.forEach(function (entry) {
+      select.appendChild(el('option', { value: entry.cr, text: 'GS ' + entry.cr + ' (' + entry.xp + ' XP)' }));
+    });
+  }
+
+  function renderEncounter() {
+    document.getElementById('encPartySize').value = state.encounter.partySize;
+    document.getElementById('encPartyLevel').value = state.encounter.partyLevel;
+
+    var partySize = Math.max(1, parseInt(state.encounter.partySize, 10) || 1);
+    var partyLevel = Math.min(20, Math.max(1, parseInt(state.encounter.partyLevel, 10) || 1));
+    var perCharacter = XP_THRESHOLDS[partyLevel];
+    var thresholds = perCharacter.map(function (v) { return v * partySize; });
+
+    var thresholdsWrap = document.getElementById('xpThresholds');
+    thresholdsWrap.innerHTML = '';
+    var labels = ['Facile', 'Medio', 'Difficile', 'Mortale'];
+    labels.forEach(function (label, i) {
+      thresholdsWrap.appendChild(el('div', { class: 'threshold-badge' }, [
+        el('span', { class: 'label', text: label }),
+        el('span', { class: 'value', text: thresholds[i].toLocaleString('it-IT') + ' XP' })
+      ]));
+    });
+
+    var tbody = document.getElementById('encounterBody');
+    tbody.innerHTML = '';
+    if (state.encounter.monsters.length === 0) {
+      tbody.appendChild(el('tr', {}, [el('td', { colspan: '7', class: 'empty-hint', text: 'Nessun mostro aggiunto.' })]));
+    }
+    var totalXp = 0;
+    var totalCount = 0;
+    state.encounter.monsters.forEach(function (m) {
+      var xpEach = xpForCr(m.cr);
+      var rowXp = xpEach * m.qty;
+      totalXp += rowXp;
+      totalCount += m.qty;
+
+      var qtyInput = numberInput(m.qty, function (v) { m.qty = Math.max(1, Math.round(v)); saveState(); renderEncounter(); }, '56px');
+      var acInput = numberInput(m.ac, function (v) { m.ac = v; saveState(); }, '56px');
+      var hpInput = numberInput(m.hp, function (v) { m.hp = v; saveState(); }, '56px');
+
+      var removeBtn = el('button', {
+        type: 'button', class: 'btn-remove', text: '✕', title: 'Rimuovi mostro',
+        onclick: function () {
+          state.encounter.monsters = state.encounter.monsters.filter(function (x) { return x.id !== m.id; });
+          saveState();
+          renderEncounter();
+        }
+      });
+
+      tbody.appendChild(el('tr', {}, [
+        el('td', { text: m.name }),
+        el('td', { text: 'GS ' + m.cr }),
+        el('td', {}, [qtyInput]),
+        el('td', {}, [acInput]),
+        el('td', {}, [hpInput]),
+        el('td', { text: rowXp.toLocaleString('it-IT') }),
+        el('td', { class: 'col-actions' }, [removeBtn])
+      ]));
+    });
+
+    var multiplier = totalCount > 0 ? effectiveMultiplier(totalCount, partySize) : 1;
+    var adjustedXp = Math.round(totalXp * multiplier);
+    var diff = totalCount > 0 ? difficultyForXp(adjustedXp, thresholds) : { label: '—', cls: '' };
+
+    var summary = document.getElementById('encounterSummary');
+    summary.innerHTML = '';
+    summary.appendChild(el('div', {}, [
+      document.createTextNode('Mostri totali: ' + totalCount + '  ·  XP totale: ' + totalXp.toLocaleString('it-IT') +
+        '  ·  Moltiplicatore: x' + multiplier + '  ·  XP adeguato: ' + adjustedXp.toLocaleString('it-IT'))
+    ]));
+    summary.appendChild(el('div', { style: 'margin-top:6px' }, [
+      document.createTextNode('Difficoltà stimata: '),
+      el('span', { class: 'diff-pill ' + diff.cls, text: diff.label })
+    ]));
+  }
+
+  document.getElementById('encPartySize').addEventListener('change', function (e) {
+    state.encounter.partySize = Math.max(1, parseInt(e.target.value, 10) || 1);
+    saveState();
+    renderEncounter();
+  });
+
+  document.getElementById('encPartyLevel').addEventListener('change', function (e) {
+    state.encounter.partyLevel = Math.min(20, Math.max(1, parseInt(e.target.value, 10) || 1));
+    saveState();
+    renderEncounter();
+  });
+
+  document.getElementById('encSyncParty').addEventListener('click', function () {
+    state.encounter.partySize = state.party.length > 0 ? state.party.length : state.encounter.partySize;
+    saveState();
+    renderEncounter();
+  });
+
+  document.getElementById('addMonsterForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = document.getElementById('monName').value.trim();
+    var cr = document.getElementById('monCr').value;
+    var qty = Math.max(1, parseInt(document.getElementById('monQty').value, 10) || 1);
+    var ac = parseFloat(document.getElementById('monAc').value) || 0;
+    var hp = parseFloat(document.getElementById('monHp').value) || 0;
+    if (!name) return;
+    state.encounter.monsters.push({ id: uid(), name: name, cr: cr, qty: qty, ac: ac, hp: hp });
+    e.target.reset();
+    document.getElementById('monQty').value = '1';
+    document.getElementById('monAc').value = '13';
+    document.getElementById('monHp').value = '10';
+    saveState();
+    renderEncounter();
+  });
+
+  document.getElementById('encAddToNpcs').addEventListener('click', function () {
+    if (state.encounter.monsters.length === 0) return;
+    if (!confirm('Aggiungere tutti i mostri come PNG Nemici e svuotare la lista?')) return;
+    state.encounter.monsters.forEach(function (m) {
+      for (var i = 1; i <= m.qty; i++) {
+        state.npcs.push({
+          id: uid(),
+          name: m.qty > 1 ? m.name + ' ' + i : m.name,
+          side: 'enemy',
+          ac: m.ac, hpCur: m.hp, hpMax: m.hp,
+          init: 0, damage: 0, prone: false, restrained: false
+        });
+      }
+    });
+    state.encounter.monsters = [];
+    saveState();
+    renderEncounter();
+    renderNpcs();
+  });
+
+  document.getElementById('encClear').addEventListener('click', function () {
+    if (state.encounter.monsters.length === 0) return;
+    if (!confirm('Svuotare la lista dei mostri?')) return;
+    state.encounter.monsters = [];
+    saveState();
+    renderEncounter();
+  });
+
   // ---------------- RESET ALL ----------------
 
   document.getElementById('resetAll').addEventListener('click', function () {
@@ -630,11 +964,14 @@
     renderRages();
     renderParty();
     renderNpcs();
+    renderEncounter();
     updateSortArrows('partyTable');
   }
 
   setupSortableHeaders('partyTable', renderParty);
   document.getElementById('secPerRound').value = state.time.secPerRound;
+  initNameGenerators();
+  initEncounterCrSelect();
 
   renderAll();
   if (state.time.running) startTicker();

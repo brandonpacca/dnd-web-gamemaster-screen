@@ -96,6 +96,88 @@
   </section>
 
   <section class="hb-section">
+    <h2 class="section-title">Generatori di Nomi Casuali</h2>
+    <div class="generator-grid">
+
+      <div class="generator-box">
+        <h3>Nomi PNG Fantasy</h3>
+        <div class="inline-form">
+          <select id="npcGenRace"></select>
+          <select id="npcGenGender">
+            <option value="any">Genere casuale</option>
+            <option value="male">Maschile</option>
+            <option value="female">Femminile</option>
+          </select>
+          <label class="check-inline"><input type="checkbox" id="npcGenEpithet"> Soprannome</label>
+          <button type="button" id="npcGenBtn">🎲 Genera Nome</button>
+        </div>
+        <div class="generated-result" id="npcGenResult">—</div>
+        <div class="btn-row" style="justify-content:flex-start">
+          <button type="button" id="npcGenUsePc">Usa per PG</button>
+          <button type="button" id="npcGenUseNpc">Usa per PNG</button>
+        </div>
+        <div class="generated-history" id="npcGenHistory"></div>
+      </div>
+
+      <div class="generator-box">
+        <h3>Nomi di Luoghi Fantasy</h3>
+        <div class="inline-form">
+          <select id="placeGenType"></select>
+          <button type="button" id="placeGenBtn">🎲 Genera Nome</button>
+        </div>
+        <div class="generated-result" id="placeGenResult">—</div>
+        <div class="generated-history" id="placeGenHistory"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="hb-section">
+    <h2 class="section-title">Costruttore Incontro — metodologia Kobold Fight Club</h2>
+    <p class="section-hint">Calcola la difficoltà dello scontro con le stesse soglie XP e gli stessi moltiplicatori usati da Kobold Fight Club / Kobold+ (basati sulle regole di bilanciamento del Manuale del Dungeon Master).</p>
+
+    <div class="inline-form">
+      <label class="stacked-label">PG nel party
+        <input type="number" id="encPartySize" min="1" value="4">
+      </label>
+      <label class="stacked-label">Livello medio del party
+        <input type="number" id="encPartyLevel" min="1" max="20" value="3">
+      </label>
+      <button type="button" id="encSyncParty" title="Usa il numero di PG dalla tabella Party">Sincronizza da Party</button>
+    </div>
+
+    <div class="xp-thresholds" id="xpThresholds"></div>
+
+    <h3 class="group-title">Mostri nello scontro</h3>
+    <div class="table-wrap">
+      <table class="hb-table" id="encounterTable">
+        <thead>
+          <tr>
+            <th>Nome</th><th>GS</th><th>Quantità</th><th>CA</th><th>PF</th><th>XP tot.</th><th class="col-actions"></th>
+          </tr>
+        </thead>
+        <tbody id="encounterBody"></tbody>
+      </table>
+    </div>
+
+    <form id="addMonsterForm" class="inline-form">
+      <input type="text" id="monName" placeholder="Nome mostro" required>
+      <select id="monCr"></select>
+      <input type="number" id="monQty" min="1" value="1" placeholder="Quantità">
+      <input type="number" id="monAc" placeholder="CA" value="13">
+      <input type="number" id="monHp" placeholder="PF" value="10">
+      <button type="submit">+ Aggiungi Mostro</button>
+    </form>
+
+    <div class="encounter-summary" id="encounterSummary"></div>
+
+    <div class="btn-row" style="justify-content:flex-start;margin-top:10px">
+      <button type="button" id="encAddToNpcs">Aggiungi tutti ai PNG Nemici</button>
+      <button type="button" id="encClear" class="btn-secondary">Svuota lista mostri</button>
+    </div>
+  </section>
+
+  <section class="hb-section">
     <h2 class="section-title">PNG in Combattimento</h2>
 
     <h3 class="group-title enemy-title">Nemici</h3>
