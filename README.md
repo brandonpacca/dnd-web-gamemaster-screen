@@ -1,0 +1,47 @@
+# Schermo del Game Master — D&D 5e
+
+Sito statico (HTML/CSS/JS, nessuna build necessaria) per tenere traccia degli aspetti principali di una campagna D&D 5e durante le sessioni di gioco, con una grafica ispirata a [Homebrewery](https://homebrewery.naturalcrit.com/).
+
+Tutti i dati vengono salvati automaticamente nel `localStorage` del browser: nessun server o database richiesto.
+
+## Funzionalità
+
+### Tracciamento del combattimento
+- **Round**: contatore incrementabile/decrementabile
+- **Tempo trascorso**: cronometro avvia/pausa/azzera, con stima del tempo di gioco in base ai round (secondi/round configurabili)
+- **Spell slot dei caster**: aggiungi quanti incantatori servono, con slot per livello (1-9) e segnaposto cliccabili per marcare l'uso
+- **Ira del barbaro**: aggiungi più barbari, ciascuno con numero massimo di ire configurabile
+- **Tabella del party**: Nome PG / CA / PF / Iniziativa / Danni subiti / Condizione (Prono, Immobilizzato), ordinabile cliccando sulle intestazioni di colonna
+- **Schede PNG in combattimento**: card separate per nemici e alleati con CA / PF / Iniziativa / Danni subiti / Condizione
+
+### Strumenti di preparazione ed improvvisazione
+- **Costruttore Incontro**: calcola la difficoltà di uno scontro con la stessa metodologia di soglie XP e moltiplicatori di Kobold Fight Club / Kobold+ (basata sulle regole del Manuale del Dungeon Master); permette di aggiungere mostri per Grado di Sfida e di trasformarli con un click in PNG nemici
+- **Generatore di nomi PNG fantasy**: per razza (Umano, Elfo, Nano, Halfling, Orco/Goblin, Oscuro/Non-morto) e genere, con soprannome opzionale
+- **Generatore di nomi di luoghi fantasy**: per tipo (città, foresta, montagna, corso d'acqua, rovine, regno...)
+- **Taverna Casuale**: genera con un click una taverna completa di nome, locandiere, menù di cibo e bevande con prezzi, disponibilità e costo dei posti letto, PNG presenti (con descrizione fisica e caratteriale) e gossip attribuiti a loro
+- **Tabella Eventi Negativi (Wild Magic Surge)**: 100 scariche di magia selvaggia su tre livelli di gravità (Estremo/Moderato/Fastidio), consultabile con tiro rapido (d100 + d20) o ricerca per numero/parola chiave
+
+Un menu di navigazione fisso in alto permette di raggiungere rapidamente ogni sezione.
+
+## Utilizzo
+
+Non è richiesta alcuna installazione: basta aprire `index.html` in un browser, oppure servire la cartella con un server statico qualsiasi, ad esempio:
+
+```bash
+python3 -m http.server 8000
+```
+
+e visitare `http://localhost:8000`.
+
+## Struttura del progetto
+
+```
+index.html      Markup e sezioni della pagina
+css/style.css   Grafica in stile Homebrewery (pergamena, font fantasy, bordi ornati)
+js/app.js       Logica dell'applicazione (stato, rendering, generatori, persistenza)
+```
+
+## Note
+
+- Nessuna dipendenza esterna a runtime: solo JavaScript vanilla e i font Google (MedievalSharp, EB Garamond).
+- Tutti i contenuti generati (nomi, taverne, mostri) sono creati dinamicamente lato client.
