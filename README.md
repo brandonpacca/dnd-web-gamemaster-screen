@@ -26,10 +26,11 @@ Tutti i dati vengono salvati automaticamente nel `localStorage` del browser: nes
 ### Dati di campagna persistenti
 A differenza del tracciamento del combattimento, questi dati **sopravvivono** al pulsante "Nuovo Combattimento" e restano disponibili per l'intera campagna:
 - **Rubrica di PNG e Fazioni**: scheda per ogni PNG/fazione con razza o ruolo, luogo, disposizione (alleato/neutrale/nemico/sconosciuto), descrizione e note del GM, con ricerca e filtro per tipo. Un pulsante "+ Rubrica" sulle schede PNG di combattimento permette di salvare al volo un PNG ricorrente
+- **Diario di Sessione**: registro delle sessioni giocate (numerate automaticamente, data reale, data in-game, riassunto libero), ordinato dalla più recente con ricerca full-text
 - **Compendio**: archivio di oggetti/tesori e mostri incontrati, ciascuno con ricerca dedicata. Il Costruttore Incontro ha un pulsante "+ Comp." per salvare un mostro, e il Generatore di Tesori può salvare gemme e oggetti d'arte generati con un click
 
 ### Backup
-- **Esporta/Importa dati (JSON)**: scarica in un unico file sia lo stato del combattimento sia i dati di campagna (rubrica e compendio), e ripristinali in seguito — utile perché tutto vive solo nel `localStorage` del browser in uso
+- **Esporta/Importa dati (JSON)**: scarica in un unico file sia lo stato del combattimento sia i dati di campagna (rubrica, diario e compendio), e ripristinali in seguito — utile perché tutto vive solo nel `localStorage` del browser in uso
 
 Un menu di navigazione fisso in alto permette di raggiungere rapidamente ogni sezione.
 
