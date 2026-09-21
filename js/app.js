@@ -517,15 +517,54 @@
   var state = loadState();
   var timerInterval = null;
 
+  // Le 14 condizioni della 5e (più lo Sfinimento, che ha livelli 0-6 anziché essere
+  // un semplice sì/no e viene quindi tracciato a parte).
+  var CONDITIONS = [
+    { key: 'blinded', label: 'Accecato' },
+    { key: 'charmed', label: 'Affascinato' },
+    { key: 'deafened', label: 'Assordato' },
+    { key: 'frightened', label: 'Spaventato' },
+    { key: 'grappled', label: 'Afferrato' },
+    { key: 'incapacitated', label: 'Incapacitato' },
+    { key: 'invisible', label: 'Invisibile' },
+    { key: 'paralyzed', label: 'Paralizzato' },
+    { key: 'petrified', label: 'Pietrificato' },
+    { key: 'poisoned', label: 'Avvelenato' },
+    { key: 'prone', label: 'Prono' },
+    { key: 'restrained', label: 'Trattenuto' },
+    { key: 'stunned', label: 'Stordito' },
+    { key: 'unconscious', label: 'Privo di sensi' }
+  ];
+  var CONDITION_LABELS = {};
+  CONDITIONS.forEach(function (c) { CONDITION_LABELS[c.key] = c.label; });
+
+  function migrateConditions(entity) {
+    if (!entity.conditions) {
+      entity.conditions = [];
+      if (entity.prone) entity.conditions.push('prone');
+      if (entity.restrained) entity.conditions.push('restrained');
+      delete entity.prone;
+      delete entity.restrained;
+    }
+    if (typeof entity.exhaustion !== 'number') entity.exhaustion = 0;
+  }
+
   function loadState() {
+    var result;
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return clone(defaultState);
-      var parsed = JSON.parse(raw);
-      return Object.assign(clone(defaultState), parsed);
+      if (!raw) {
+        result = clone(defaultState);
+      } else {
+        var parsed = JSON.parse(raw);
+        result = Object.assign(clone(defaultState), parsed);
+      }
     } catch (e) {
-      return clone(defaultState);
+      result = clone(defaultState);
     }
+    result.party.forEach(migrateConditions);
+    result.npcs.forEach(migrateConditions);
+    return result;
   }
 
   function clone(obj) {
@@ -907,10 +946,38 @@
   }
 
   function conditionText(row) {
-    var c = [];
-    if (row.prone) c.push('Prono');
-    if (row.restrained) c.push('Immobilizzato');
+    var c = (row.conditions || []).map(function (key) { return CONDITION_LABELS[key] || key; });
+    if (row.exhaustion) c.push('Sfinimento ' + row.exhaustion);
     return c.join(', ');
+  }
+
+  function renderConditionPicker(entity, onChange) {
+    var wrap = el('div', { class: 'condition-chip-group' });
+    CONDITIONS.forEach(function (c) {
+      var active = entity.conditions.indexOf(c.key) !== -1;
+      wrap.appendChild(el('button', {
+        type: 'button',
+        class: 'condition-chip' + (active ? ' condition-chip-active' : ''),
+        text: c.label,
+        onclick: function () {
+          var idx = entity.conditions.indexOf(c.key);
+          if (idx === -1) entity.conditions.push(c.key); else entity.conditions.splice(idx, 1);
+          onChange();
+        }
+      }));
+    });
+
+    var exhInput = el('input', { type: 'number', min: '0', max: '6', value: entity.exhaustion, class: 'exhaustion-input' });
+    exhInput.addEventListener('change', function () {
+      entity.exhaustion = Math.max(0, Math.min(6, parseInt(exhInput.value, 10) || 0));
+      onChange();
+    });
+    wrap.appendChild(el('span', { class: 'exhaustion-wrap' }, [
+      el('span', { class: 'exhaustion-label', text: 'Sfinimento' }),
+      exhInput
+    ]));
+
+    return wrap;
   }
 
   function setupSortableHeaders(tableId, renderFn) {
@@ -996,19 +1063,8 @@
 
     var hpCell = el('td', {}, [hpCurInput, el('span', { text: ' / ' }), hpMaxInput]);
 
-    var proneCb = el('input', { type: 'checkbox' });
-    proneCb.checked = !!pc.prone;
-    proneCb.addEventListener('change', function () { pc.prone = proneCb.checked; saveState(); });
-
-    var restrainedCb = el('input', { type: 'checkbox' });
-    restrainedCb.checked = !!pc.restrained;
-    restrainedCb.addEventListener('change', function () { pc.restrained = restrainedCb.checked; saveState(); });
-
-    var condCell = el('td', {}, [
-      el('div', { class: 'condition-checks' }, [
-        el('label', {}, [proneCb, document.createTextNode('Prono')]),
-        el('label', {}, [restrainedCb, document.createTextNode('Immobilizzato')])
-      ])
+    var condCell = el('td', { class: 'condition-cell' }, [
+      renderConditionPicker(pc, function () { saveState(); renderParty(); })
     ]);
 
     var removeBtn = el('button', {
@@ -1048,7 +1104,7 @@
     if (!name) return;
     state.party.push({
       id: uid(), name: name, race: race, className: className, ac: ac, hpCur: hpCur, hpMax: hpMax,
-      init: init, damage: 0, prone: false, restrained: false
+      init: init, damage: 0, conditions: [], exhaustion: 0
     });
     e.target.reset();
     saveState();
@@ -1137,17 +1193,8 @@
       el('label', { text: 'Danni subiti' }, [dmgInput])
     ]);
 
-    var proneCb = el('input', { type: 'checkbox' });
-    proneCb.checked = !!npc.prone;
-    proneCb.addEventListener('change', function () { npc.prone = proneCb.checked; saveState(); });
-
-    var restrainedCb = el('input', { type: 'checkbox' });
-    restrainedCb.checked = !!npc.restrained;
-    restrainedCb.addEventListener('change', function () { npc.restrained = restrainedCb.checked; saveState(); });
-
     var condition = el('div', { class: 'npc-condition' }, [
-      el('label', {}, [proneCb, document.createTextNode('Prono')]),
-      el('label', {}, [restrainedCb, document.createTextNode('Immobilizzato')])
+      renderConditionPicker(npc, function () { saveState(); renderNpcs(); })
     ]);
 
     return el('div', { class: 'npc-card ' + (npc.side === 'ally' ? 'ally' : 'enemy') }, [header, stats, condition]);
@@ -1164,7 +1211,7 @@
     if (!name) return;
     state.npcs.push({
       id: uid(), name: name, side: side, ac: ac, hpCur: hpCur, hpMax: hpMax,
-      init: init, damage: 0, prone: false, restrained: false
+      init: init, damage: 0, conditions: [], exhaustion: 0
     });
     e.target.reset();
     document.getElementById('npcInit').value = '0';
@@ -1293,10 +1340,12 @@
         ? 'Nessuna sessione registrata. Aggiungi la prima qui sotto.'
         : 'Nessun risultato per questo filtro.';
       wrap.appendChild(el('div', { class: 'empty-hint', text: hint }));
+      renderDashboard();
       return;
     }
 
     rows.forEach(function (s) { wrap.appendChild(renderSessionCard(s)); });
+    renderDashboard();
   }
 
   function renderSessionCard(s) {
@@ -1376,10 +1425,10 @@
         ? 'Nessuna quest registrata. Aggiungine una qui sotto.'
         : 'Nessun risultato per questo filtro.';
       wrap.appendChild(el('div', { class: 'empty-hint', text: hint }));
-      return;
+    } else {
+      rows.forEach(function (q) { wrap.appendChild(renderQuestCard(q)); });
     }
-
-    rows.forEach(function (q) { wrap.appendChild(renderQuestCard(q)); });
+    renderDashboard();
   }
 
   function renderQuestCard(q) {
@@ -1932,20 +1981,20 @@
 
     if (combined.length === 0) {
       listEl.appendChild(el('div', { class: 'empty-hint', text: 'Aggiungi PG o PNG con un valore di Iniziativa per generare l\'ordine dei turni.' }));
-      return;
+    } else {
+      combined.forEach(function (c, idx) {
+        var isActive = state.initiative.activeId === c.id;
+        var sideClass = c.kind === 'pg' ? 'initiative-pg' : ('initiative-' + (c.side === 'ally' ? 'ally' : 'enemy'));
+        var tag = c.kind === 'pg' ? 'PG' : (c.side === 'ally' ? 'Alleato' : 'Nemico');
+        listEl.appendChild(el('div', { class: 'initiative-row ' + sideClass + (isActive ? ' initiative-active' : '') }, [
+          el('span', { class: 'initiative-pos', text: (idx + 1) + '.' }),
+          el('span', { class: 'initiative-name', text: c.name }),
+          el('span', { class: 'initiative-init', text: 'Iniziativa ' + c.init }),
+          el('span', { class: 'initiative-tag', text: tag })
+        ]));
+      });
     }
-
-    combined.forEach(function (c, idx) {
-      var isActive = state.initiative.activeId === c.id;
-      var sideClass = c.kind === 'pg' ? 'initiative-pg' : ('initiative-' + (c.side === 'ally' ? 'ally' : 'enemy'));
-      var tag = c.kind === 'pg' ? 'PG' : (c.side === 'ally' ? 'Alleato' : 'Nemico');
-      listEl.appendChild(el('div', { class: 'initiative-row ' + sideClass + (isActive ? ' initiative-active' : '') }, [
-        el('span', { class: 'initiative-pos', text: (idx + 1) + '.' }),
-        el('span', { class: 'initiative-name', text: c.name }),
-        el('span', { class: 'initiative-init', text: 'Iniziativa ' + c.init }),
-        el('span', { class: 'initiative-tag', text: tag })
-      ]));
-    });
+    renderDashboard();
   }
 
   function advanceTurn(direction) {
@@ -2129,7 +2178,7 @@
           name: m.qty > 1 ? m.name + ' ' + i : m.name,
           side: 'enemy',
           ac: m.ac, hpCur: m.hp, hpMax: m.hp,
-          init: 0, damage: 0, prone: false, restrained: false
+          init: 0, damage: 0, conditions: [], exhaustion: 0
         });
       }
     });
@@ -2245,6 +2294,86 @@
     reader.readAsText(file);
     e.target.value = '';
   });
+
+  // ---------------- DASHBOARD / RIEPILOGO ----------------
+
+  function renderDashboard() {
+    var wrap = document.getElementById('dashboardContent');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+
+    var combined = getCombinedCombatants();
+    var active = combined.filter(function (c) { return c.id === state.initiative.activeId; })[0];
+
+    var tiles = el('div', { class: 'dashboard-grid' }, [
+      el('div', { class: 'dashboard-tile' }, [
+        el('div', { class: 'dashboard-tile-label', text: 'Round' }),
+        el('div', { class: 'dashboard-tile-value', text: String(state.round) })
+      ]),
+      el('div', { class: 'dashboard-tile' }, [
+        el('div', { class: 'dashboard-tile-label', text: 'Tempo trascorso' }),
+        el('div', { class: 'dashboard-tile-value', text: formatHMS(currentElapsedMs()) })
+      ]),
+      el('div', { class: 'dashboard-tile' }, [
+        el('div', { class: 'dashboard-tile-label', text: 'Turno attivo' }),
+        el('div', { class: 'dashboard-tile-value dashboard-tile-value-small', text: active ? active.name : '—' })
+      ])
+    ]);
+    wrap.appendChild(tiles);
+
+    // PF critici (party + PNG a 25% dei PF massimi o meno)
+    var critical = [];
+    state.party.forEach(function (pc) {
+      if (pc.hpMax > 0 && pc.hpCur <= pc.hpMax * 0.25) {
+        critical.push(pc.name + ' — ' + pc.hpCur + '/' + pc.hpMax + ' PF');
+      }
+    });
+    state.npcs.forEach(function (n) {
+      if (n.hpMax > 0 && n.hpCur <= n.hpMax * 0.25) {
+        critical.push(n.name + ' — ' + n.hpCur + '/' + n.hpMax + ' PF');
+      }
+    });
+    var criticalSection = el('div', { class: 'dashboard-section' }, [
+      el('div', { class: 'dashboard-section-title', text: '⚠️ PF critici (≤25%)' })
+    ]);
+    if (critical.length === 0) {
+      criticalSection.appendChild(el('div', { class: 'empty-hint', text: 'Nessuno al momento.' }));
+    } else {
+      criticalSection.appendChild(el('ul', { class: 'dashboard-list' }, critical.map(function (t) {
+        return el('li', { text: t });
+      })));
+    }
+    wrap.appendChild(criticalSection);
+
+    // Quest aperte
+    var openQuests = campaignData.quests.filter(function (q) { return q.status === 'attiva' || q.status === 'sospeso'; });
+    var questSection = el('div', { class: 'dashboard-section' }, [
+      el('div', { class: 'dashboard-section-title', text: '📜 Quest aperte (' + openQuests.length + ')' })
+    ]);
+    if (openQuests.length === 0) {
+      questSection.appendChild(el('div', { class: 'empty-hint', text: 'Nessuna quest aperta.' }));
+    } else {
+      questSection.appendChild(el('ul', { class: 'dashboard-list' }, openQuests.slice(0, 5).map(function (q) {
+        return el('li', { text: q.title + ' (' + QUEST_STATUS_LABELS[q.status] + ')' });
+      })));
+      if (openQuests.length > 5) {
+        questSection.appendChild(el('div', { class: 'dashboard-more', text: '+ altre ' + (openQuests.length - 5) }));
+      }
+    }
+    wrap.appendChild(questSection);
+
+    // Ultima sessione registrata
+    var lastSession = campaignData.sessions.slice().sort(function (a, b) { return b.number - a.number; })[0];
+    var sessionSection = el('div', { class: 'dashboard-section' }, [
+      el('div', { class: 'dashboard-section-title', text: '📖 Ultima sessione' })
+    ]);
+    if (!lastSession) {
+      sessionSection.appendChild(el('div', { class: 'empty-hint', text: 'Nessuna sessione registrata.' }));
+    } else {
+      sessionSection.appendChild(el('div', { text: 'Sessione ' + lastSession.number + ' — ' + lastSession.title }));
+    }
+    wrap.appendChild(sessionSection);
+  }
 
   // ---------------- RESET ALL ----------------
 
