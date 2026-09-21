@@ -23,8 +23,13 @@ Tutti i dati vengono salvati automaticamente nel `localStorage` del browser: nes
 - **Taverna Casuale**: genera con un click una taverna completa di nome, locandiere, menù di cibo e bevande con prezzi, disponibilità e costo dei posti letto, PNG presenti (con descrizione fisica e caratteriale) e gossip attribuiti a loro
 - **Tabella Eventi Negativi (Wild Magic Surge)**: 100 scariche di magia selvaggia su tre livelli di gravità (Estremo/Moderato/Fastidio), consultabile con tiro rapido (d100 + d20) o ricerca per numero/parola chiave
 
+### Dati di campagna persistenti
+A differenza del tracciamento del combattimento, questi dati **sopravvivono** al pulsante "Nuovo Combattimento" e restano disponibili per l'intera campagna:
+- **Rubrica di PNG e Fazioni**: scheda per ogni PNG/fazione con razza o ruolo, luogo, disposizione (alleato/neutrale/nemico/sconosciuto), descrizione e note del GM, con ricerca e filtro per tipo. Un pulsante "+ Rubrica" sulle schede PNG di combattimento permette di salvare al volo un PNG ricorrente
+- **Compendio**: archivio di oggetti/tesori e mostri incontrati, ciascuno con ricerca dedicata. Il Costruttore Incontro ha un pulsante "+ Comp." per salvare un mostro, e il Generatore di Tesori può salvare gemme e oggetti d'arte generati con un click
+
 ### Backup
-- **Esporta/Importa dati (JSON)**: scarica l'intero stato dell'app come file di backup e ripristinalo in seguito, utile perché i dati vivono solo nel `localStorage` del browser in uso
+- **Esporta/Importa dati (JSON)**: scarica in un unico file sia lo stato del combattimento sia i dati di campagna (rubrica e compendio), e ripristinali in seguito — utile perché tutto vive solo nel `localStorage` del browser in uso
 
 Un menu di navigazione fisso in alto permette di raggiungere rapidamente ogni sezione.
 
