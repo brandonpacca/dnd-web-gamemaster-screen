@@ -1,5 +1,12 @@
 # Changelog
 
+## Non rilasciato
+
+- Tracker Quest/Obiettivi persistente, con checklist di sotto-obiettivi
+- Generatore Casuale di Mostri nel Compendio (filtrabile per Grado di Sfida), con dati
+  meccanici tratti dai contenuti aperti (SRD) delle regole ufficiali di D&D 5e
+- Rimossi i riferimenti a "Kobold Fight Club" dal Costruttore Incontro
+
 ## v1.0.0
 
 Prima release dello Schermo del Game Master.

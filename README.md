@@ -30,7 +30,7 @@ A differenza del tracciamento del combattimento, questi dati **sopravvivono** al
 - **Rubrica di PNG e Fazioni**: scheda per ogni PNG/fazione con razza o ruolo, luogo, disposizione (alleato/neutrale/nemico/sconosciuto), descrizione e note del GM, con ricerca e filtro per tipo. Un pulsante "+ Rubrica" sulle schede PNG di combattimento permette di salvare al volo un PNG ricorrente
 - **Diario di Sessione**: registro delle sessioni giocate (numerate automaticamente, data reale, data in-game, riassunto libero), ordinato dalla più recente con ricerca full-text
 - **Tracker Quest/Obiettivi**: quest con committente, stato (Attiva/In Sospeso/Completata/Fallita), ricompensa e una checklist di sotto-obiettivi da spuntare, ordinate con le attive in cima, con ricerca e filtro per stato
-- **Compendio**: archivio di oggetti/tesori e mostri incontrati, ciascuno con ricerca dedicata. Il Costruttore Incontro ha un pulsante "+ Comp." per salvare un mostro, e il Generatore di Tesori può salvare gemme e oggetti d'arte generati con un click
+- **Compendio**: archivio di oggetti/tesori e mostri incontrati, ciascuno con ricerca dedicata. Il Costruttore Incontro ha un pulsante "+ Comp." per salvare un mostro, e il Generatore di Tesori può salvare gemme e oggetti d'arte generati con un click. Include anche un **Generatore Casuale di Mostri** (filtrabile per Grado di Sfida) con dati meccanici — nome, tipo, GS, CA, PF — tratti dai contenuti aperti (SRD) delle regole ufficiali di D&D 5e
 
 ### Backup
 - **Esporta/Importa dati (JSON)**: scarica in un unico file sia lo stato del combattimento sia i dati di campagna (rubrica, diario e compendio), e ripristinali in seguito — utile perché tutto vive solo nel `localStorage` del browser in uso
