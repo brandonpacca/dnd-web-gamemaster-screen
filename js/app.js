@@ -433,6 +433,87 @@
     return { tier: tier, coins: coins, gems: gems, art: art, totalGp: Math.round(totalGp) };
   }
 
+  // ---- Random monster generator data ----
+  // Nome, tipo/taglia, GS, CA e PF: dati meccanici presi dai contenuti che Wizards of
+  // the Coast ha rilasciato in forma aperta (System Reference Document). Valori
+  // indicativi per un rapido riferimento al tavolo: per il testo completo delle
+  // caratteristiche consulta il Manuale dei Mostri ufficiale.
+
+  var MONSTER_GENERATOR_LIST = [
+    { name: 'Topo', type: 'Bestia (Minuscola)', cr: '0', ac: 10, hp: 1 },
+    { name: 'Pipistrello', type: 'Bestia (Minuscola)', cr: '0', ac: 12, hp: 1 },
+    { name: 'Gatto', type: 'Bestia (Minuscola)', cr: '0', ac: 12, hp: 2 },
+    { name: 'Corvo', type: 'Bestia (Minuscola)', cr: '0', ac: 12, hp: 1 },
+    { name: 'Granchio', type: 'Bestia (Minuscola)', cr: '0', ac: 11, hp: 2 },
+    { name: 'Kobold', type: 'Umanoide (Piccolo)', cr: '1/8', ac: 12, hp: 5 },
+    { name: 'Ratto gigante', type: 'Bestia (Piccolo)', cr: '1/8', ac: 12, hp: 7 },
+    { name: 'Stirge', type: 'Bestia (Piccolo)', cr: '1/8', ac: 14, hp: 2 },
+    { name: 'Goblin', type: 'Umanoide (Piccolo)', cr: '1/4', ac: 15, hp: 7 },
+    { name: 'Scheletro', type: 'Non Morto (Medio)', cr: '1/4', ac: 13, hp: 13 },
+    { name: 'Zombie', type: 'Non Morto (Medio)', cr: '1/4', ac: 8, hp: 22 },
+    { name: 'Lupo', type: 'Bestia (Medio)', cr: '1/4', ac: 13, hp: 11 },
+    { name: 'Orco', type: 'Umanoide (Medio)', cr: '1/2', ac: 13, hp: 15 },
+    { name: 'Hobgoblin', type: 'Umanoide (Medio)', cr: '1/2', ac: 18, hp: 11 },
+    { name: 'Orso nero', type: 'Bestia (Medio)', cr: '1/2', ac: 11, hp: 19 },
+    { name: 'Ragno gigante', type: 'Bestia (Grande)', cr: '1', ac: 14, hp: 26 },
+    { name: 'Orso bruno', type: 'Bestia (Grande)', cr: '1', ac: 11, hp: 34 },
+    { name: 'Bugbear', type: 'Umanoide (Medio)', cr: '1', ac: 16, hp: 27 },
+    { name: 'Arpia', type: 'Mostruosità (Medio)', cr: '1', ac: 11, hp: 38 },
+    { name: 'Ghoul', type: 'Non Morto (Medio)', cr: '1', ac: 12, hp: 22 },
+    { name: 'Ogre', type: 'Gigante (Grande)', cr: '2', ac: 11, hp: 59 },
+    { name: 'Grifone', type: 'Mostruosità (Grande)', cr: '2', ac: 12, hp: 59 },
+    { name: 'Cubo gelatinoso', type: 'Melma (Grande)', cr: '2', ac: 6, hp: 84 },
+    { name: 'Melma ocra', type: 'Melma (Grande)', cr: '2', ac: 8, hp: 45 },
+    { name: 'Ghast', type: 'Non Morto (Medio)', cr: '2', ac: 13, hp: 36 },
+    { name: 'Manticora', type: 'Mostruosità (Grande)', cr: '3', ac: 14, hp: 68 },
+    { name: 'Basilisco', type: 'Mostruosità (Medio)', cr: '3', ac: 15, hp: 52 },
+    { name: 'Minotauro', type: 'Mostruosità (Grande)', cr: '3', ac: 14, hp: 76 },
+    { name: 'Wight', type: 'Non Morto (Medio)', cr: '3', ac: 14, hp: 45 },
+    { name: 'Spettro', type: 'Non Morto (Medio)', cr: '4', ac: 11, hp: 45 },
+    { name: 'Ettin', type: 'Gigante (Grande)', cr: '4', ac: 12, hp: 85 },
+    { name: 'Troll', type: 'Gigante (Grande)', cr: '5', ac: 15, hp: 84 },
+    { name: 'Ombra vagante', type: 'Non Morto (Medio)', cr: '5', ac: 13, hp: 67 },
+    { name: 'Gigante delle colline', type: 'Gigante (Enorme)', cr: '5', ac: 13, hp: 105 },
+    { name: 'Elementale del fuoco', type: 'Elementale (Grande)', cr: '5', ac: 13, hp: 102 },
+    { name: 'Chimera', type: 'Mostruosità (Grande)', cr: '6', ac: 14, hp: 114 },
+    { name: 'Medusa', type: 'Mostruosità (Medio)', cr: '6', ac: 15, hp: 127 },
+    { name: 'Drago bianco (giovane)', type: 'Drago (Grande)', cr: '6', ac: 17, hp: 133 },
+    { name: 'Gigante di pietra', type: 'Gigante (Enorme)', cr: '7', ac: 17, hp: 126 },
+    { name: 'Drago nero (giovane)', type: 'Drago (Grande)', cr: '7', ac: 18, hp: 127 },
+    { name: 'Naga spirituale', type: 'Mostruosità (Grande)', cr: '8', ac: 17, hp: 75 },
+    { name: 'Gigante del ghiaccio', type: 'Gigante (Enorme)', cr: '8', ac: 15, hp: 138 },
+    { name: 'Drago verde (giovane)', type: 'Drago (Grande)', cr: '8', ac: 18, hp: 136 },
+    { name: 'Gigante del fuoco', type: 'Gigante (Enorme)', cr: '9', ac: 18, hp: 162 },
+    { name: 'Gigante delle nuvole', type: 'Gigante (Enorme)', cr: '9', ac: 14, hp: 200 },
+    { name: 'Drago blu (giovane)', type: 'Drago (Grande)', cr: '9', ac: 18, hp: 152 },
+    { name: 'Drago rosso (giovane)', type: 'Drago (Grande)', cr: '10', ac: 18, hp: 178 },
+    { name: 'Diavolo cornuto', type: 'Immondo (Grande)', cr: '11', ac: 17, hp: 178 },
+    { name: 'Nalfeshnee', type: 'Immondo (Grande)', cr: '13', ac: 18, hp: 184 },
+    { name: 'Gigante delle tempeste', type: 'Gigante (Enorme)', cr: '13', ac: 16, hp: 230 },
+    { name: 'Marilith', type: 'Immondo (Grande)', cr: '16', ac: 18, hp: 189 },
+    { name: 'Golem di ferro', type: 'Costrutto (Enorme)', cr: '16', ac: 20, hp: 210 },
+    { name: 'Drago rosso (adulto)', type: 'Drago (Enorme)', cr: '17', ac: 19, hp: 256 },
+    { name: 'Goristro', type: 'Immondo (Enorme)', cr: '17', ac: 17, hp: 310 },
+    { name: 'Balor', type: 'Immondo (Enorme)', cr: '19', ac: 19, hp: 262 },
+    { name: 'Diavolo supremo', type: 'Immondo (Enorme)', cr: '20', ac: 19, hp: 300 },
+    { name: 'Lich', type: 'Non Morto (Medio)', cr: '21', ac: 17, hp: 135 },
+    { name: 'Drago rosso (antico)', type: 'Drago (Colossale)', cr: '24', ac: 22, hp: 546 },
+    { name: 'Tarrasca', type: 'Mostruosità (Titanica)', cr: '30', ac: 25, hp: 676 }
+  ];
+
+  function generateRandomMonster(crRangeKey) {
+    var pool = MONSTER_GENERATOR_LIST;
+    if (crRangeKey) {
+      var parts = crRangeKey.split('-').map(Number);
+      pool = pool.filter(function (m) {
+        var val = m.cr === '1/8' ? 0.125 : m.cr === '1/4' ? 0.25 : m.cr === '1/2' ? 0.5 : Number(m.cr);
+        return val >= parts[0] && val <= parts[1];
+      });
+    }
+    if (pool.length === 0) pool = MONSTER_GENERATOR_LIST;
+    return randChoice(pool);
+  }
+
   var state = loadState();
   var timerInterval = null;
 
@@ -1472,6 +1553,43 @@
   });
 
   document.getElementById('compendiumItemFilter').addEventListener('input', renderCompendiumItems);
+
+  function renderMonsterGenResult(monster) {
+    var wrap = document.getElementById('monsterGenResult');
+    wrap.innerHTML = '';
+
+    var card = el('div', { class: 'compendium-card monster-gen-card' }, [
+      el('div', { class: 'compendium-header' }, [
+        el('div', { class: 'compendium-title-group' }, [
+          el('span', { class: 'generated-result', style: 'margin:0', text: monster.name }),
+          el('span', { class: 'compendium-badge', text: monster.type }),
+          el('span', { class: 'compendium-badge compendium-badge-rarity', text: 'GS ' + monster.cr })
+        ])
+      ]),
+      el('div', { text: 'CA ' + monster.ac + '  ·  PF ' + monster.hp })
+    ]);
+
+    var addBtn = el('button', {
+      type: 'button', class: 'btn-secondary', style: 'margin-top:10px',
+      text: '+ Aggiungi al Compendio',
+      onclick: function () {
+        campaignData.compendiumMonsters.push({
+          id: uid(), name: monster.name, cr: monster.cr, ac: monster.ac, hp: monster.hp,
+          description: monster.type, notes: 'Generato casualmente (contenuti aperti SRD).'
+        });
+        saveCampaignData();
+        renderCompendiumMonsters();
+      }
+    });
+    card.appendChild(addBtn);
+
+    wrap.appendChild(card);
+  }
+
+  document.getElementById('monsterGenBtn').addEventListener('click', function () {
+    var crRange = document.getElementById('monsterGenCrFilter').value;
+    renderMonsterGenResult(generateRandomMonster(crRange));
+  });
 
   function renderCompendiumMonsters() {
     var wrap = document.getElementById('compendiumMonsterList');

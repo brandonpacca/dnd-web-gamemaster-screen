@@ -805,6 +805,11 @@ input[type="number"] { width: 80px; }
   margin-bottom: 4px;
 }
 
+.monster-gen-card {
+  margin-top: 8px;
+  margin-bottom: 14px;
+}
+
 .compendium-card {
   border: 1px solid var(--gold);
   border-radius: 6px;

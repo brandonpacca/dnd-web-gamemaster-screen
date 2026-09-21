@@ -252,6 +252,20 @@
       <button type="submit">+ Aggiungi Oggetto</button>
     </form>
 
+    <h3 class="group-title">Generatore Casuale di Mostri</h3>
+    <p class="section-hint">Genera un mostro casuale con i dati meccanici (nome, tipo, GS, CA, PF) tratti dai contenuti che Wizards of the Coast ha rilasciato in forma aperta (System Reference Document) delle regole ufficiali di D&amp;D 5e. Valori indicativi: per le caratteristiche complete consulta il Manuale dei Mostri.</p>
+    <div class="inline-form">
+      <select id="monsterGenCrFilter">
+        <option value="">Qualsiasi GS</option>
+        <option value="0-2">GS 0-2 (basso livello)</option>
+        <option value="3-8">GS 3-8 (livello medio)</option>
+        <option value="9-16">GS 9-16 (livello alto)</option>
+        <option value="17-30">GS 17-30 (epico)</option>
+      </select>
+      <button type="button" id="monsterGenBtn">🎲 Genera Mostro</button>
+    </div>
+    <div id="monsterGenResult"></div>
+
     <h3 class="group-title">Mostri Incontrati</h3>
     <div class="inline-form">
       <input type="text" id="compendiumMonsterFilter" placeholder="Cerca mostri...">
