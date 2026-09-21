@@ -13,7 +13,7 @@ Prima release dello Schermo del Game Master.
 - Ordine di Iniziativa unificato (PG + PNG), con avanzamento automatico del Round
 
 ### Strumenti di preparazione e improvvisazione
-- Costruttore Incontro con la metodologia XP/moltiplicatori di Kobold Fight Club
+- Costruttore Incontro con soglie XP e moltiplicatori basati sulle regole del Manuale del Dungeon Master
 - Generatore di Tesori (monete, gemme, oggetti d'arte) per fascia di Grado di Sfida
 - Generatore di nomi PNG fantasy (per razza e genere)
 - Generatore di nomi di luoghi fantasy

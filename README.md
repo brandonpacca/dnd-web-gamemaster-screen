@@ -18,7 +18,7 @@ Tutti i dati vengono salvati automaticamente nel `localStorage` del browser: nes
 - **Ordine di Iniziativa**: unisce automaticamente party e PNG in un unico ordine di turno ordinato per Iniziativa, con controlli avanti/indietro; superare l'ultimo combattente incrementa da solo il Round
 
 ### Strumenti di preparazione ed improvvisazione
-- **Costruttore Incontro**: calcola la difficoltà di uno scontro con la stessa metodologia di soglie XP e moltiplicatori di Kobold Fight Club / Kobold+ (basata sulle regole del Manuale del Dungeon Master); permette di aggiungere mostri per Grado di Sfida e di trasformarli con un click in PNG nemici
+- **Costruttore Incontro**: calcola la difficoltà di uno scontro con soglie XP e moltiplicatori basati sulle regole del Manuale del Dungeon Master; permette di aggiungere mostri per Grado di Sfida e di trasformarli con un click in PNG nemici
 - **Generatore di Tesori**: monete, gemme e oggetti d'arte scalati su quattro fasce di Grado di Sfida, con valore totale stimato in monete d'oro
 - **Generatore di nomi PNG fantasy**: per razza (Umano, Elfo, Nano, Halfling, Orco/Goblin, Oscuro/Non-morto) e genere, con soprannome opzionale
 - **Generatore di nomi di luoghi fantasy**: per tipo (città, foresta, montagna, corso d'acqua, rovine, regno...)

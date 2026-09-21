@@ -26,7 +26,7 @@
     }
   };
 
-  // ---- Kobold Fight Club style encounter-building data (5e DMG methodology) ----
+  // ---- Encounter-building data (5e DMG XP threshold/multiplier methodology) ----
 
   var CR_XP = [
     { cr: '0', xp: 10 }, { cr: '1/8', xp: 25 }, { cr: '1/4', xp: 50 }, { cr: '1/2', xp: 100 },
@@ -1843,7 +1843,7 @@
     renderInitiative();
   });
 
-  // ---------------- ENCOUNTER BUILDER (Kobold Fight Club style) ----------------
+  // ---------------- ENCOUNTER BUILDER ----------------
 
   function initEncounterCrSelect() {
     var select = document.getElementById('monCr');
