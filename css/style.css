@@ -810,6 +810,13 @@ input[type="number"] { width: 80px; }
   margin-bottom: 14px;
 }
 
+.monster-gen-source {
+  font-style: italic;
+  font-size: 0.85em;
+  color: #6b4a2b;
+  margin-top: 6px;
+}
+
 .compendium-card {
   border: 1px solid var(--gold);
   border-radius: 6px;

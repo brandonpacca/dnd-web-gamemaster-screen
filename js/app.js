@@ -13,7 +13,7 @@
     },
     casters: [],   // { id, name, levels: [{level, max, used}] }
     rages: [],     // { id, name, max, used }
-    party: [],     // { id, name, ac, hpCur, hpMax, init, damage, prone, restrained }
+    party: [],     // { id, name, race, className, ac, hpCur, hpMax, init, damage, prone, restrained }
     npcs: [],      // { id, name, side, ac, hpCur, hpMax, init, damage, prone, restrained }
     sort: { key: null, dir: 1 },
     encounter: {
@@ -896,6 +896,8 @@
 
   function sortValue(row, key) {
     if (key === 'name') return (row.name || '').toLowerCase();
+    if (key === 'race') return (row.race || '').toLowerCase();
+    if (key === 'className') return (row.className || '').toLowerCase();
     if (key === 'ac') return Number(row.ac) || 0;
     if (key === 'hp') return Number(row.hpCur) || 0;
     if (key === 'init') return Number(row.init) || 0;
@@ -982,6 +984,10 @@
 
   function renderPartyRow(pc) {
     var nameInput = textInput(pc.name, function (v) { pc.name = v; saveState(); });
+    var raceInput = el('input', { type: 'text', value: pc.race, list: 'raceOptions' });
+    raceInput.addEventListener('change', function () { pc.race = raceInput.value; saveState(); });
+    var classInput = el('input', { type: 'text', value: pc.className, list: 'classOptions' });
+    classInput.addEventListener('change', function () { pc.className = classInput.value; saveState(); });
     var acInput = numberInput(pc.ac, function (v) { pc.ac = v; saveState(); });
     var hpCurInput = numberInput(pc.hpCur, function (v) { pc.hpCur = v; saveState(); }, '56px');
     var hpMaxInput = numberInput(pc.hpMax, function (v) { pc.hpMax = v; saveState(); }, '56px');
@@ -1019,6 +1025,8 @@
 
     return el('tr', {}, [
       el('td', {}, [nameInput]),
+      el('td', {}, [raceInput]),
+      el('td', {}, [classInput]),
       el('td', {}, [acInput]),
       hpCell,
       el('td', {}, [initInput]),
@@ -1031,13 +1039,15 @@
   document.getElementById('addPcForm').addEventListener('submit', function (e) {
     e.preventDefault();
     var name = document.getElementById('pcName').value.trim();
+    var race = document.getElementById('pcRace').value.trim();
+    var className = document.getElementById('pcClass').value.trim();
     var ac = parseFloat(document.getElementById('pcAc').value) || 0;
     var hpCur = parseFloat(document.getElementById('pcHpCur').value) || 0;
     var hpMax = parseFloat(document.getElementById('pcHpMax').value) || 0;
     var init = parseFloat(document.getElementById('pcInit').value) || 0;
     if (!name) return;
     state.party.push({
-      id: uid(), name: name, ac: ac, hpCur: hpCur, hpMax: hpMax,
+      id: uid(), name: name, race: race, className: className, ac: ac, hpCur: hpCur, hpMax: hpMax,
       init: init, damage: 0, prone: false, restrained: false
     });
     e.target.reset();
@@ -1566,16 +1576,22 @@
           el('span', { class: 'compendium-badge compendium-badge-rarity', text: 'GS ' + monster.cr })
         ])
       ]),
-      el('div', { text: 'CA ' + monster.ac + '  ·  PF ' + monster.hp })
+      el('div', { text: 'CA ' + monster.ac + '  ·  PF ' + monster.hp }),
+      el('div', { class: 'monster-gen-source', text: '📖 Fonte dati: System Reference Document (SRD) 5.1' })
     ]);
+
+    var manualInput = el('input', { type: 'text', placeholder: 'es. Manuale dei Mostri, p. 166 (facoltativo, da verificare sul tuo manuale)' });
+    card.appendChild(el('label', { class: 'roster-textarea-label', text: 'Manuale e pagina (a cura tua)' }, [manualInput]));
 
     var addBtn = el('button', {
       type: 'button', class: 'btn-secondary', style: 'margin-top:10px',
       text: '+ Aggiungi al Compendio',
       onclick: function () {
+        var manualRef = manualInput.value.trim();
+        var notes = 'Generato casualmente (fonte dati: SRD 5.1).' + (manualRef ? ' Riferimento: ' + manualRef + '.' : '');
         campaignData.compendiumMonsters.push({
           id: uid(), name: monster.name, cr: monster.cr, ac: monster.ac, hp: monster.hp,
-          description: monster.type, notes: 'Generato casualmente (contenuti aperti SRD).'
+          description: monster.type, notes: notes
         });
         saveCampaignData();
         renderCompendiumMonsters();
@@ -1619,6 +1635,7 @@
     var acInput = numberInput(m.ac, function (v) { m.ac = v; saveCampaignData(); });
     var hpInput = numberInput(m.hp, function (v) { m.hp = v; saveCampaignData(); });
     var descArea = textareaInput(m.description, function (v) { m.description = v; saveCampaignData(); }, 2);
+    var notesArea = textareaInput(m.notes, function (v) { m.notes = v; saveCampaignData(); }, 2);
 
     var removeBtn = el('button', {
       type: 'button', class: 'btn-remove', text: '✕', title: 'Rimuovi dal compendio',
@@ -1647,7 +1664,8 @@
 
     return el('div', { class: 'compendium-card' }, [
       header, stats,
-      el('label', { class: 'roster-textarea-label', text: 'Descrizione / Tattiche' }, [descArea])
+      el('label', { class: 'roster-textarea-label', text: 'Descrizione / Tattiche' }, [descArea]),
+      el('label', { class: 'roster-textarea-label', text: 'Note (fonte, manuale e pagina...)' }, [notesArea])
     ]);
   }
 
@@ -1967,6 +1985,21 @@
     var select = document.getElementById('monCr');
     CR_XP.forEach(function (entry) {
       select.appendChild(el('option', { value: entry.cr, text: 'GS ' + entry.cr + ' (' + entry.xp + ' XP)' }));
+    });
+
+    var preset = document.getElementById('monPreset');
+    preset.appendChild(el('option', { value: '', text: '— nessuno —' }));
+    MONSTER_GENERATOR_LIST.forEach(function (m, idx) {
+      preset.appendChild(el('option', { value: idx, text: m.name + ' (GS ' + m.cr + ')' }));
+    });
+    preset.addEventListener('change', function () {
+      if (preset.value === '') return;
+      var m = MONSTER_GENERATOR_LIST[Number(preset.value)];
+      document.getElementById('monName').value = m.name;
+      document.getElementById('monCr').value = m.cr;
+      document.getElementById('monAc').value = m.ac;
+      document.getElementById('monHp').value = m.hp;
+      preset.value = '';
     });
   }
 
