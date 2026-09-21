@@ -464,7 +464,8 @@
   var defaultCampaignData = {
     roster: [],             // { id, type: 'png'|'fazione', name, subtitle, location, disposition, description, notes }
     compendiumItems: [],    // { id, name, category, rarity, value, description, notes }
-    compendiumMonsters: []  // { id, name, cr, ac, hp, description, notes }
+    compendiumMonsters: [], // { id, name, cr, ac, hp, description, notes }
+    sessions: []            // { id, number, title, realDate, gameDate, summary }
   };
 
   function loadCampaignData() {
@@ -1180,6 +1181,84 @@
   document.getElementById('rosterFilter').addEventListener('input', renderRoster);
   document.getElementById('rosterFilterType').addEventListener('change', renderRoster);
 
+  // ---------------- DIARIO DI SESSIONE ----------------
+
+  function renderSessions() {
+    var wrap = document.getElementById('sessionList');
+    var filterText = document.getElementById('sessionFilter').value.trim().toLowerCase();
+    wrap.innerHTML = '';
+
+    var rows = campaignData.sessions.filter(function (s) {
+      if (!filterText) return true;
+      var blob = (s.title + ' ' + s.realDate + ' ' + s.gameDate + ' ' + s.summary).toLowerCase();
+      return blob.indexOf(filterText) !== -1;
+    });
+
+    rows = rows.slice().sort(function (a, b) { return b.number - a.number; });
+
+    if (rows.length === 0) {
+      var hint = campaignData.sessions.length === 0
+        ? 'Nessuna sessione registrata. Aggiungi la prima qui sotto.'
+        : 'Nessun risultato per questo filtro.';
+      wrap.appendChild(el('div', { class: 'empty-hint', text: hint }));
+      return;
+    }
+
+    rows.forEach(function (s) { wrap.appendChild(renderSessionCard(s)); });
+  }
+
+  function renderSessionCard(s) {
+    var titleInput = textInput(s.title, function (v) { s.title = v; saveCampaignData(); });
+    var realDateInput = el('input', { type: 'date', value: s.realDate || '' });
+    realDateInput.addEventListener('change', function () { s.realDate = realDateInput.value; saveCampaignData(); });
+    var gameDateInput = textInput(s.gameDate, function (v) { s.gameDate = v; saveCampaignData(); });
+    var summaryArea = textareaInput(s.summary, function (v) { s.summary = v; saveCampaignData(); }, 6);
+
+    var removeBtn = el('button', {
+      type: 'button', class: 'btn-remove', text: '✕', title: 'Rimuovi sessione',
+      onclick: function () {
+        if (confirm('Rimuovere "Sessione ' + s.number + ' — ' + s.title + '"?')) {
+          campaignData.sessions = campaignData.sessions.filter(function (x) { return x.id !== s.id; });
+          saveCampaignData();
+          renderSessions();
+        }
+      }
+    });
+
+    var header = el('div', { class: 'session-header' }, [
+      el('div', { class: 'session-title-group' }, [
+        el('span', { class: 'session-number', text: 'Sessione ' + s.number }),
+        titleInput
+      ]),
+      removeBtn
+    ]);
+
+    var metaRow = el('div', { class: 'roster-meta' }, [
+      el('label', { text: 'Data reale' }, [realDateInput]),
+      el('label', { text: 'Data in-game' }, [gameDateInput])
+    ]);
+
+    return el('div', { class: 'session-card' }, [
+      header, metaRow,
+      el('label', { class: 'roster-textarea-label', text: 'Riassunto della sessione' }, [summaryArea])
+    ]);
+  }
+
+  document.getElementById('addSessionForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var title = document.getElementById('sessionTitle').value.trim();
+    var realDate = document.getElementById('sessionRealDate').value;
+    var gameDate = document.getElementById('sessionGameDate').value.trim();
+    if (!title) return;
+    var nextNumber = campaignData.sessions.reduce(function (max, s) { return Math.max(max, s.number); }, 0) + 1;
+    campaignData.sessions.push({ id: uid(), number: nextNumber, title: title, realDate: realDate, gameDate: gameDate, summary: '' });
+    e.target.reset();
+    saveCampaignData();
+    renderSessions();
+  });
+
+  document.getElementById('sessionFilter').addEventListener('input', renderSessions);
+
   // ---------------- COMPENDIO: Oggetti, Tesori e Mostri persistenti ----------------
 
   function renderCompendiumItems() {
@@ -1863,6 +1942,7 @@
       saveCampaignData();
       renderAll();
       renderRoster();
+      renderSessions();
       renderCompendiumItems();
       renderCompendiumMonsters();
       if (state.time.running) startTicker();
@@ -1903,6 +1983,7 @@
 
   renderAll();
   renderRoster();
+  renderSessions();
   renderCompendiumItems();
   renderCompendiumMonsters();
   if (state.time.running) startTicker();

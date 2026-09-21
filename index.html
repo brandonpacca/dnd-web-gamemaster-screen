@@ -29,6 +29,7 @@
     <a href="#sez-compendio">Compendio</a>
     <a href="#sez-png">PNG</a>
     <a href="#sez-rubrica">Rubrica</a>
+    <a href="#sez-diario">Diario</a>
     <a href="#sez-iniziativa">Iniziativa</a>
     <a href="#sez-eventi-negativi">Eventi Negativi</a>
   </nav>
@@ -314,6 +315,23 @@
         <option value="nemico">Nemico</option>
       </select>
       <button type="submit">+ Aggiungi alla Rubrica</button>
+    </form>
+  </section>
+
+  <section class="hb-section" id="sez-diario">
+    <h2 class="section-title">Diario di Sessione</h2>
+    <p class="section-hint">Registro persistente delle sessioni giocate: sopravvive al "Nuovo Combattimento" e resta disponibile per tutta la campagna.</p>
+    <div class="inline-form">
+      <input type="text" id="sessionFilter" placeholder="Cerca per titolo, data o contenuto...">
+    </div>
+    <div id="sessionList" class="session-list"></div>
+    <form id="addSessionForm" class="inline-form">
+      <input type="text" id="sessionTitle" placeholder="Titolo della sessione" required>
+      <label class="stacked-label">Data reale
+        <input type="date" id="sessionRealDate">
+      </label>
+      <input type="text" id="sessionGameDate" placeholder="Data in-game (es. 15 Fiorente)">
+      <button type="submit">+ Nuova Sessione</button>
     </form>
   </section>
 

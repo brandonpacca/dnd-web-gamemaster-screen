@@ -952,6 +952,56 @@ input[type="number"] { width: 80px; }
 
 .roster-meta input[type="text"] { width: 150px; }
 
+/* ---------- Diario di Sessione ---------- */
+
+.session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.session-card {
+  border: 1px solid var(--gold);
+  border-left: 5px solid #2f5da0;
+  border-radius: 6px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.4);
+}
+
+.session-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.session-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.session-number {
+  font-family: 'MedievalSharp', cursive;
+  color: var(--maroon);
+  font-size: 1.05em;
+  white-space: nowrap;
+}
+
+.session-title-group input[type="text"] {
+  font-weight: 700;
+  color: var(--maroon-dark);
+  width: 220px;
+}
+
+.session-card .roster-textarea-label textarea {
+  min-height: 110px;
+}
+
 /* ---------- Ordine di Iniziativa ---------- */
 
 .initiative-list {
