@@ -20,6 +20,9 @@
       partySize: 4,
       partyLevel: 3,
       monsters: [] // { id, name, cr, qty, ac, hp }
+    },
+    initiative: {
+      activeId: null // id of the combatant whose turn is active, e.g. "pg-<id>" or "png-<id>"
     }
   };
 
@@ -136,6 +139,10 @@
 
   function randChoice(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function randInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
   function generateNpcName(raceKey, genderKey, withEpithet) {
@@ -367,6 +374,63 @@
       copy.splice(idx, 1);
     }
     return out;
+  }
+
+  // ---- Treasure generator data ----
+
+  var GEM_DESCRIPTIONS = [
+    'un piccolo zaffiro blu intenso', 'un opale dai riflessi iridescenti', 'una granata rosso sangue',
+    'un topazio dal taglio squadrato', 'un\'ametista viola scuro', 'una perla perfettamente sferica',
+    'uno smeraldo dal cuore verde brillante', 'un quarzo affumicato', 'un berillo dorato',
+    'una turchese screziata', 'un corniola arancione', 'un giaietto nero lucido',
+    'un diamante grezzo, ancora da tagliare', 'un rubino dalle sfumature scure'
+  ];
+
+  var ART_OBJECT_DESCRIPTIONS = [
+    'una collana d\'argento con un pendente a forma di goccia', 'un piccolo calice smaltato di blu',
+    'una statuetta d\'avorio raffigurante un animale', 'un anello sigillo inciso con uno stemma sconosciuto',
+    'un candelabro d\'ottone finemente lavorato', 'un arazzo ricamato con scene di caccia',
+    'una scatola di legno intarsiato con motivi floreali', 'una maschera cerimoniale dipinta a mano',
+    'un pettine d\'osso decorato con perline', 'una coppa di cristallo dal bordo dorato',
+    'un medaglione smaltato raffigurante una fenice', 'una fibbia di cintura in argento sbalzato'
+  ];
+
+  var TREASURE_TIERS = [
+    { label: 'GS 0-4 (basso livello)', coins: { cp: [50, 600], sp: [50, 300], gp: [0, 100], pp: [0, 0] }, gemChance: 0.5, gemValue: [10, 50], gemCount: [1, 3], artChance: 0.2, artValue: [25, 100] },
+    { label: 'GS 5-10 (livello medio)', coins: { cp: [0, 0], sp: [100, 600], gp: [200, 800], pp: [0, 50] }, gemChance: 0.65, gemValue: [50, 250], gemCount: [2, 4], artChance: 0.35, artValue: [100, 500] },
+    { label: 'GS 11-16 (livello alto)', coins: { cp: [0, 0], sp: [0, 0], gp: [1000, 4000], pp: [100, 400] }, gemChance: 0.75, gemValue: [500, 2000], gemCount: [2, 6], artChance: 0.5, artValue: [500, 2500] },
+    { label: 'GS 17+ (epico)', coins: { cp: [0, 0], sp: [0, 0], gp: [5000, 15000], pp: [1000, 3000] }, gemChance: 0.85, gemValue: [2000, 7500], gemCount: [3, 8], artChance: 0.65, artValue: [2500, 10000] }
+  ];
+
+  function generateTreasure(tierIdx) {
+    var tier = TREASURE_TIERS[tierIdx] || TREASURE_TIERS[0];
+    var coins = {};
+    ['cp', 'sp', 'gp', 'pp'].forEach(function (denom) {
+      var range = tier.coins[denom];
+      coins[denom] = range[1] > 0 ? randInt(range[0], range[1]) : 0;
+    });
+
+    var gems = [];
+    if (Math.random() < tier.gemChance) {
+      var gemCount = randInt(tier.gemCount[0], tier.gemCount[1]);
+      for (var i = 0; i < gemCount; i++) {
+        gems.push({ desc: randChoice(GEM_DESCRIPTIONS), value: randInt(tier.gemValue[0], tier.gemValue[1]) });
+      }
+    }
+
+    var art = [];
+    if (Math.random() < tier.artChance) {
+      var artCount = randInt(1, 2);
+      for (var j = 0; j < artCount; j++) {
+        art.push({ desc: randChoice(ART_OBJECT_DESCRIPTIONS), value: randInt(tier.artValue[0], tier.artValue[1]) });
+      }
+    }
+
+    var totalGp = coins.cp / 100 + coins.sp / 10 + coins.gp + coins.pp * 10;
+    gems.forEach(function (g) { totalGp += g.value; });
+    art.forEach(function (a) { totalGp += a.value; });
+
+    return { tier: tier, coins: coins, gems: gems, art: art, totalGp: Math.round(totalGp) };
   }
 
   var state = loadState();
@@ -773,11 +837,12 @@
     if (rows.length === 0) {
       var tr = el('tr', {}, [el('td', { colspan: '7', class: 'empty-hint', text: 'Nessun personaggio aggiunto.' })]);
       tbody.appendChild(tr);
-      return;
+    } else {
+      rows.forEach(function (pc) {
+        tbody.appendChild(renderPartyRow(pc));
+      });
     }
-    rows.forEach(function (pc) {
-      tbody.appendChild(renderPartyRow(pc));
-    });
+    renderInitiative();
   }
 
   function numberInput(value, onChange, width) {
@@ -882,6 +947,7 @@
     } else {
       allies.forEach(function (n) { allyWrap.appendChild(renderNpcCard(n)); });
     }
+    renderInitiative();
   }
 
   function renderNpcCard(npc) {
@@ -1122,6 +1188,123 @@
     renderTavern(generateTavern());
   });
 
+  // ---------------- TREASURE GENERATOR ----------------
+
+  function renderTreasure(result) {
+    var wrap = document.getElementById('treasureResult');
+    wrap.innerHTML = '';
+
+    var coinParts = [];
+    ['pp', 'gp', 'sp', 'cp'].forEach(function (d) {
+      if (result.coins[d] > 0) coinParts.push(result.coins[d] + ' ' + d);
+    });
+    var coinsText = coinParts.length ? coinParts.join(', ') : 'Nessuna moneta.';
+
+    var sheet = el('div', { class: 'treasure-sheet' }, [
+      el('div', { class: 'treasure-tier', text: result.tier.label }),
+      el('div', { class: 'treasure-coins', text: '💰 Monete: ' + coinsText })
+    ]);
+
+    if (result.gems.length) {
+      sheet.appendChild(el('div', {}, [
+        el('h4', { text: 'Gemme' }),
+        el('ul', { class: 'treasure-list' }, result.gems.map(function (g) {
+          return el('li', {}, [el('span', { text: g.desc }), el('span', { class: 'treasure-value', text: g.value + ' mo' })]);
+        }))
+      ]));
+    }
+
+    if (result.art.length) {
+      sheet.appendChild(el('div', {}, [
+        el('h4', { text: 'Oggetti d\'arte' }),
+        el('ul', { class: 'treasure-list' }, result.art.map(function (a) {
+          return el('li', {}, [el('span', { text: a.desc }), el('span', { class: 'treasure-value', text: a.value + ' mo' })]);
+        }))
+      ]));
+    }
+
+    sheet.appendChild(el('div', { class: 'treasure-total', text: 'Valore totale stimato: ' + result.totalGp.toLocaleString('it-IT') + ' mo' }));
+    sheet.appendChild(el('div', { class: 'treasure-hint', text: 'Valuta di aggiungere un oggetto magico adeguato a questo livello, a discrezione del Game Master.' }));
+
+    wrap.appendChild(sheet);
+  }
+
+  document.getElementById('treasureGenBtn').addEventListener('click', function () {
+    var tierIdx = parseInt(document.getElementById('treasureTier').value, 10) || 0;
+    renderTreasure(generateTreasure(tierIdx));
+  });
+
+  // ---------------- INITIATIVE TRACKER ----------------
+
+  function getCombinedCombatants() {
+    var combined = [];
+    state.party.forEach(function (pc) {
+      combined.push({ id: 'pg-' + pc.id, kind: 'pg', name: pc.name, init: Number(pc.init) || 0 });
+    });
+    state.npcs.forEach(function (npc) {
+      combined.push({ id: 'png-' + npc.id, kind: 'png', side: npc.side, name: npc.name, init: Number(npc.init) || 0 });
+    });
+    combined.sort(function (a, b) {
+      return (b.init - a.init) || a.name.localeCompare(b.name);
+    });
+    return combined;
+  }
+
+  function renderInitiative() {
+    var listEl = document.getElementById('initiativeList');
+    if (!listEl) return;
+    var combined = getCombinedCombatants();
+    listEl.innerHTML = '';
+
+    if (combined.length === 0) {
+      listEl.appendChild(el('div', { class: 'empty-hint', text: 'Aggiungi PG o PNG con un valore di Iniziativa per generare l\'ordine dei turni.' }));
+      return;
+    }
+
+    combined.forEach(function (c, idx) {
+      var isActive = state.initiative.activeId === c.id;
+      var sideClass = c.kind === 'pg' ? 'initiative-pg' : ('initiative-' + (c.side === 'ally' ? 'ally' : 'enemy'));
+      var tag = c.kind === 'pg' ? 'PG' : (c.side === 'ally' ? 'Alleato' : 'Nemico');
+      listEl.appendChild(el('div', { class: 'initiative-row ' + sideClass + (isActive ? ' initiative-active' : '') }, [
+        el('span', { class: 'initiative-pos', text: (idx + 1) + '.' }),
+        el('span', { class: 'initiative-name', text: c.name }),
+        el('span', { class: 'initiative-init', text: 'Iniziativa ' + c.init }),
+        el('span', { class: 'initiative-tag', text: tag })
+      ]));
+    });
+  }
+
+  function advanceTurn(direction) {
+    var combined = getCombinedCombatants();
+    if (combined.length === 0) return;
+    var idx = combined.findIndex(function (c) { return c.id === state.initiative.activeId; });
+    if (idx === -1) {
+      idx = direction > 0 ? 0 : combined.length - 1;
+    } else {
+      idx += direction;
+      if (idx >= combined.length) {
+        idx = 0;
+        state.round++;
+        renderRound();
+      } else if (idx < 0) {
+        idx = combined.length - 1;
+        state.round = Math.max(0, state.round - 1);
+        renderRound();
+      }
+    }
+    state.initiative.activeId = combined[idx].id;
+    saveState();
+    renderInitiative();
+  }
+
+  document.getElementById('initNextBtn').addEventListener('click', function () { advanceTurn(1); });
+  document.getElementById('initPrevBtn').addEventListener('click', function () { advanceTurn(-1); });
+  document.getElementById('initResetBtn').addEventListener('click', function () {
+    state.initiative.activeId = null;
+    saveState();
+    renderInitiative();
+  });
+
   // ---------------- ENCOUNTER BUILDER (Kobold Fight Club style) ----------------
 
   function initEncounterCrSelect() {
@@ -1309,6 +1492,49 @@
     ]));
   }
 
+  // ---------------- BACKUP: EXPORT / IMPORT JSON ----------------
+
+  document.getElementById('exportDataBtn').addEventListener('click', function () {
+    var dataStr = JSON.stringify(state, null, 2);
+    var blob = new Blob([dataStr], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    var stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+    a.download = 'gm-screen-backup-' + stamp + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('importDataBtn').addEventListener('click', function () {
+    document.getElementById('importDataInput').click();
+  });
+
+  document.getElementById('importDataInput').addEventListener('change', function (e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      var imported;
+      try {
+        imported = JSON.parse(ev.target.result);
+      } catch (err) {
+        alert('File non valido: impossibile leggere i dati JSON.');
+        return;
+      }
+      if (!confirm('Importare questi dati? Sovrascriveranno lo stato attuale.')) return;
+      stopTicker();
+      state = Object.assign(clone(defaultState), imported);
+      saveState();
+      renderAll();
+      if (state.time.running) startTicker();
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+
   // ---------------- RESET ALL ----------------
 
   document.getElementById('resetAll').addEventListener('click', function () {
@@ -1329,6 +1555,7 @@
     renderParty();
     renderNpcs();
     renderEncounter();
+    renderInitiative();
     updateSortArrows('partyTable');
   }
 

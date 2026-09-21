@@ -730,6 +730,127 @@ input[type="number"] { width: 80px; }
   line-height: 1.4;
 }
 
+/* ---------- Generatore di Tesori ---------- */
+
+.treasure-sheet {
+  margin-top: 14px;
+  border: 2px solid var(--gold);
+  border-radius: 8px;
+  padding: 16px 20px;
+  background: rgba(255,255,255,0.45);
+}
+
+.treasure-tier {
+  font-family: 'MedievalSharp', cursive;
+  color: var(--maroon);
+  font-size: 1.2em;
+  margin-bottom: 8px;
+}
+
+.treasure-coins {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.treasure-sheet h4 {
+  font-family: 'MedievalSharp', cursive;
+  color: var(--maroon);
+  margin: 10px 0 6px;
+  font-size: 1.05em;
+}
+
+.treasure-list {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+}
+
+.treasure-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 3px 0;
+  border-bottom: 1px dashed #cbb87f;
+}
+
+.treasure-value {
+  font-weight: 700;
+  color: var(--maroon-dark);
+  white-space: nowrap;
+}
+
+.treasure-total {
+  font-weight: 700;
+  font-size: 1.1em;
+  color: var(--maroon-dark);
+  margin-top: 8px;
+  border-top: 1px dashed var(--gold);
+  padding-top: 8px;
+}
+
+.treasure-hint {
+  font-style: italic;
+  font-size: 0.88em;
+  color: #6b4a2b;
+  margin-top: 6px;
+}
+
+/* ---------- Ordine di Iniziativa ---------- */
+
+.initiative-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.initiative-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  border: 1px solid var(--gold);
+  border-left: 5px solid var(--gold);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.35);
+}
+
+.initiative-row.initiative-pg { border-left-color: #2f5da0; }
+.initiative-row.initiative-ally { border-left-color: var(--green); }
+.initiative-row.initiative-enemy { border-left-color: var(--red); }
+
+.initiative-row.initiative-active {
+  background: rgba(201,173,106,0.4);
+  box-shadow: 0 0 0 2px var(--maroon) inset;
+}
+
+.initiative-pos {
+  font-family: 'MedievalSharp', cursive;
+  color: var(--maroon);
+  min-width: 24px;
+}
+
+.initiative-name {
+  font-weight: 700;
+  flex: 1;
+}
+
+.initiative-init {
+  font-size: 0.9em;
+  color: #4a3420;
+}
+
+.initiative-tag {
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--maroon);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
 /* ---------- Wild Magic / Eventi Negativi ---------- */
 
 .wm-result-card {
