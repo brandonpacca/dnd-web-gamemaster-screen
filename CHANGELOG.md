@@ -9,6 +9,10 @@
 - Campi Razza e Classe nella tabella Party, con suggerimenti delle opzioni standard 5e
 - Costruttore Incontro: selezione rapida di un mostro dall'elenco SRD, oltre all'inserimento manuale
 - Rimossi i riferimenti a "Kobold Fight Club" dal Costruttore Incontro
+- Tracciamento completo delle 14 condizioni 5e (non più solo Prono/Immobilizzato) più il
+  livello di Sfinimento, per party e PNG, con migrazione automatica dei dati salvati
+- Nuova sezione Riepilogo (dashboard) in cima alla pagina: round, tempo, turno attivo,
+  PF critici, quest aperte, ultima sessione
 
 ## v1.0.0
 

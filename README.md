@@ -8,13 +8,17 @@ Tutti i dati vengono salvati automaticamente nel `localStorage` del browser: nes
 
 ## Funzionalità
 
+### Riepilogo
+- **Dashboard** in cima alla pagina con un colpo d'occhio sullo stato corrente: round e tempo trascorso, turno attivo, party/PNG con PF critici (≤25%), quest aperte e ultima sessione registrata — aggiornata automaticamente ad ogni modifica
+
 ### Tracciamento del combattimento
 - **Round**: contatore incrementabile/decrementabile
 - **Tempo trascorso**: cronometro avvia/pausa/azzera, con stima del tempo di gioco in base ai round (secondi/round configurabili)
 - **Spell slot dei caster**: aggiungi quanti incantatori servono, con slot per livello (1-9) e segnaposto cliccabili per marcare l'uso
 - **Ira del barbaro**: aggiungi più barbari, ciascuno con numero massimo di ire configurabile
-- **Tabella del party**: Nome PG / Razza / Classe / CA / PF / Iniziativa / Danni subiti / Condizione (Prono, Immobilizzato), ordinabile cliccando sulle intestazioni di colonna, con suggerimenti di razze/classi standard 5e
+- **Tabella del party**: Nome PG / Razza / Classe / CA / PF / Iniziativa / Danni subiti / Condizione, ordinabile cliccando sulle intestazioni di colonna, con suggerimenti di razze/classi standard 5e
 - **Schede PNG in combattimento**: card separate per nemici e alleati con CA / PF / Iniziativa / Danni subiti / Condizione
+- **Condizioni**: tutte le 14 condizioni della 5e (Accecato, Affascinato, Assordato, Spaventato, Afferrato, Incapacitato, Invisibile, Paralizzato, Pietrificato, Avvelenato, Prono, Trattenuto, Stordito, Privo di sensi) come segnaposto cliccabili, più il livello di Sfinimento (0-6), sia per il party sia per i PNG
 - **Ordine di Iniziativa**: unisce automaticamente party e PNG in un unico ordine di turno ordinato per Iniziativa, con controlli avanti/indietro; superare l'ultimo combattente incrementa da solo il Round
 
 ### Strumenti di preparazione ed improvvisazione
