@@ -1002,6 +1002,98 @@ input[type="number"] { width: 80px; }
   min-height: 110px;
 }
 
+/* ---------- Tracker Quest/Obiettivi ---------- */
+
+.quest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.quest-card {
+  border: 1px solid var(--gold);
+  border-left: 5px solid var(--gold);
+  border-radius: 6px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.4);
+}
+
+.quest-card-attiva { border-left-color: #2f5da0; }
+.quest-card-sospeso { border-left-color: #b3841a; }
+.quest-card-completata { border-left-color: var(--green); }
+.quest-card-fallita { border-left-color: var(--red); opacity: 0.85; }
+
+.quest-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.quest-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.quest-title-group input[type="text"] {
+  font-weight: 700;
+  color: var(--maroon);
+  width: 200px;
+}
+
+.quest-status-badge {
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+  color: #fff;
+}
+
+.quest-status-attiva { background: #2f5da0; }
+.quest-status-sospeso { background: #b3841a; }
+.quest-status-completata { background: var(--green); }
+.quest-status-fallita { background: var(--red); }
+
+.quest-objectives {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.quest-objective-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quest-objective-row input[type="text"] {
+  flex: 1;
+  width: auto;
+}
+
+.quest-objective-done input[type="text"] {
+  text-decoration: line-through;
+  color: #7a6444;
+}
+
+.quest-objective-add {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.quest-objective-add input[type="text"] {
+  flex: 1;
+}
+
 /* ---------- Ordine di Iniziativa ---------- */
 
 .initiative-list {

@@ -465,7 +465,8 @@
     roster: [],             // { id, type: 'png'|'fazione', name, subtitle, location, disposition, description, notes }
     compendiumItems: [],    // { id, name, category, rarity, value, description, notes }
     compendiumMonsters: [], // { id, name, cr, ac, hp, description, notes }
-    sessions: []            // { id, number, title, realDate, gameDate, summary }
+    sessions: [],           // { id, number, title, realDate, gameDate, summary }
+    quests: []              // { id, title, giver, status, description, reward, notes, objectives: [{id, text, done}] }
   };
 
   function loadCampaignData() {
@@ -1259,6 +1260,148 @@
 
   document.getElementById('sessionFilter').addEventListener('input', renderSessions);
 
+  // ---------------- TRACKER QUEST/OBIETTIVI ----------------
+
+  var QUEST_STATUS_LABELS = { attiva: 'Attiva', sospeso: 'In Sospeso', completata: 'Completata', fallita: 'Fallita' };
+  var QUEST_STATUS_ORDER = { attiva: 0, sospeso: 1, completata: 2, fallita: 3 };
+
+  function renderQuests() {
+    var wrap = document.getElementById('questList');
+    var filterText = document.getElementById('questFilter').value.trim().toLowerCase();
+    var filterStatus = document.getElementById('questFilterStatus').value;
+    wrap.innerHTML = '';
+
+    var rows = campaignData.quests.filter(function (q) {
+      if (filterStatus && q.status !== filterStatus) return false;
+      if (!filterText) return true;
+      var blob = (q.title + ' ' + q.giver + ' ' + q.description + ' ' + q.reward + ' ' + q.notes).toLowerCase();
+      return blob.indexOf(filterText) !== -1;
+    });
+
+    rows = rows.slice().sort(function (a, b) { return QUEST_STATUS_ORDER[a.status] - QUEST_STATUS_ORDER[b.status]; });
+
+    if (rows.length === 0) {
+      var hint = campaignData.quests.length === 0
+        ? 'Nessuna quest registrata. Aggiungine una qui sotto.'
+        : 'Nessun risultato per questo filtro.';
+      wrap.appendChild(el('div', { class: 'empty-hint', text: hint }));
+      return;
+    }
+
+    rows.forEach(function (q) { wrap.appendChild(renderQuestCard(q)); });
+  }
+
+  function renderQuestCard(q) {
+    var titleInput = textInput(q.title, function (v) { q.title = v; saveCampaignData(); });
+    var giverInput = textInput(q.giver, function (v) { q.giver = v; saveCampaignData(); });
+    var rewardInput = textInput(q.reward, function (v) { q.reward = v; saveCampaignData(); });
+
+    var statusSelect = el('select', { class: 'quest-status-select' }, Object.keys(QUEST_STATUS_LABELS).map(function (key) {
+      return el('option', { value: key, text: QUEST_STATUS_LABELS[key] });
+    }));
+    statusSelect.value = q.status;
+    statusSelect.addEventListener('change', function () {
+      q.status = statusSelect.value;
+      saveCampaignData();
+      renderQuests();
+    });
+
+    var descArea = textareaInput(q.description, function (v) { q.description = v; saveCampaignData(); }, 2);
+    var notesArea = textareaInput(q.notes, function (v) { q.notes = v; saveCampaignData(); }, 2);
+
+    var removeBtn = el('button', {
+      type: 'button', class: 'btn-remove', text: '✕', title: 'Rimuovi quest',
+      onclick: function () {
+        if (confirm('Rimuovere la quest "' + q.title + '"?')) {
+          campaignData.quests = campaignData.quests.filter(function (x) { return x.id !== q.id; });
+          saveCampaignData();
+          renderQuests();
+        }
+      }
+    });
+
+    var header = el('div', { class: 'quest-header' }, [
+      el('div', { class: 'quest-title-group' }, [
+        titleInput,
+        el('span', { class: 'quest-status-badge quest-status-' + q.status, text: QUEST_STATUS_LABELS[q.status] })
+      ]),
+      removeBtn
+    ]);
+
+    var metaRow = el('div', { class: 'roster-meta' }, [
+      el('label', { text: 'Committente' }, [giverInput]),
+      el('label', { text: 'Stato' }, [statusSelect]),
+      el('label', { text: 'Ricompensa' }, [rewardInput])
+    ]);
+
+    var objectivesWrap = el('div', { class: 'quest-objectives' });
+    q.objectives.forEach(function (obj) {
+      var doneCb = el('input', { type: 'checkbox' });
+      doneCb.checked = !!obj.done;
+      doneCb.addEventListener('change', function () {
+        obj.done = doneCb.checked;
+        saveCampaignData();
+        renderQuests();
+      });
+
+      var objText = textInput(obj.text, function (v) { obj.text = v; saveCampaignData(); });
+
+      var objRemoveBtn = el('button', {
+        type: 'button', class: 'btn-remove', text: '✕', title: 'Rimuovi obiettivo',
+        onclick: function () {
+          q.objectives = q.objectives.filter(function (x) { return x.id !== obj.id; });
+          saveCampaignData();
+          renderQuests();
+        }
+      });
+
+      objectivesWrap.appendChild(el('div', { class: 'quest-objective-row' + (obj.done ? ' quest-objective-done' : '') }, [
+        doneCb, objText, objRemoveBtn
+      ]));
+    });
+
+    var newObjInput = el('input', { type: 'text', placeholder: 'Nuovo obiettivo...' });
+    var addObjBtn = el('button', {
+      type: 'button', text: '+ Obiettivo',
+      onclick: function () {
+        var text = newObjInput.value.trim();
+        if (!text) return;
+        q.objectives.push({ id: uid(), text: text, done: false });
+        saveCampaignData();
+        renderQuests();
+      }
+    });
+    newObjInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); addObjBtn.click(); }
+    });
+    objectivesWrap.appendChild(el('div', { class: 'quest-objective-add' }, [newObjInput, addObjBtn]));
+
+    return el('div', { class: 'quest-card quest-card-' + q.status }, [
+      header, metaRow,
+      el('label', { class: 'roster-textarea-label', text: 'Descrizione' }, [descArea]),
+      el('div', { class: 'roster-textarea-label', text: 'Obiettivi' }, []),
+      objectivesWrap,
+      el('label', { class: 'roster-textarea-label', text: 'Note del GM' }, [notesArea])
+    ]);
+  }
+
+  document.getElementById('addQuestForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var title = document.getElementById('questTitle').value.trim();
+    var giver = document.getElementById('questGiver').value.trim();
+    if (!title) return;
+    campaignData.quests.push({
+      id: uid(), title: title, giver: giver, status: 'attiva',
+      description: '', reward: '', notes: '', objectives: []
+    });
+    e.target.reset();
+    saveCampaignData();
+    renderQuests();
+  });
+
+  document.getElementById('questFilter').addEventListener('input', renderQuests);
+  document.getElementById('questFilterStatus').addEventListener('change', renderQuests);
+
   // ---------------- COMPENDIO: Oggetti, Tesori e Mostri persistenti ----------------
 
   function renderCompendiumItems() {
@@ -1943,6 +2086,7 @@
       renderAll();
       renderRoster();
       renderSessions();
+      renderQuests();
       renderCompendiumItems();
       renderCompendiumMonsters();
       if (state.time.running) startTicker();
@@ -1984,6 +2128,7 @@
   renderAll();
   renderRoster();
   renderSessions();
+  renderQuests();
   renderCompendiumItems();
   renderCompendiumMonsters();
   if (state.time.running) startTicker();

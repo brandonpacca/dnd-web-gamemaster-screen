@@ -30,6 +30,7 @@
     <a href="#sez-png">PNG</a>
     <a href="#sez-rubrica">Rubrica</a>
     <a href="#sez-diario">Diario</a>
+    <a href="#sez-quest">Quest</a>
     <a href="#sez-iniziativa">Iniziativa</a>
     <a href="#sez-eventi-negativi">Eventi Negativi</a>
   </nav>
@@ -332,6 +333,27 @@
       </label>
       <input type="text" id="sessionGameDate" placeholder="Data in-game (es. 15 Fiorente)">
       <button type="submit">+ Nuova Sessione</button>
+    </form>
+  </section>
+
+  <section class="hb-section" id="sez-quest">
+    <h2 class="section-title">Tracker Quest/Obiettivi</h2>
+    <p class="section-hint">Elenco persistente delle quest della campagna, con checklist di sotto-obiettivi: sopravvive al "Nuovo Combattimento" e resta disponibile per tutta l'avventura.</p>
+    <div class="inline-form">
+      <input type="text" id="questFilter" placeholder="Cerca per titolo, committente, nota...">
+      <select id="questFilterStatus">
+        <option value="">Tutti gli stati</option>
+        <option value="attiva">Attiva</option>
+        <option value="sospeso">In Sospeso</option>
+        <option value="completata">Completata</option>
+        <option value="fallita">Fallita</option>
+      </select>
+    </div>
+    <div id="questList" class="quest-list"></div>
+    <form id="addQuestForm" class="inline-form">
+      <input type="text" id="questTitle" placeholder="Titolo della quest" required>
+      <input type="text" id="questGiver" placeholder="Committente (chi la assegna)">
+      <button type="submit">+ Nuova Quest</button>
     </form>
   </section>
 
