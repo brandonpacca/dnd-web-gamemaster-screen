@@ -457,6 +457,35 @@
     } catch (e) { /* ignore quota errors */ }
   }
 
+  // ---- Persistent campaign data: roster + compendium (survives "Nuovo Combattimento") ----
+
+  var CAMPAIGN_STORAGE_KEY = 'dnd-campaign-data-v1';
+
+  var defaultCampaignData = {
+    roster: [],             // { id, type: 'png'|'fazione', name, subtitle, location, disposition, description, notes }
+    compendiumItems: [],    // { id, name, category, rarity, value, description, notes }
+    compendiumMonsters: []  // { id, name, cr, ac, hp, description, notes }
+  };
+
+  function loadCampaignData() {
+    try {
+      var raw = localStorage.getItem(CAMPAIGN_STORAGE_KEY);
+      if (!raw) return clone(defaultCampaignData);
+      var parsed = JSON.parse(raw);
+      return Object.assign(clone(defaultCampaignData), parsed);
+    } catch (e) {
+      return clone(defaultCampaignData);
+    }
+  }
+
+  function saveCampaignData() {
+    try {
+      localStorage.setItem(CAMPAIGN_STORAGE_KEY, JSON.stringify(campaignData));
+    } catch (e) { /* ignore quota errors */ }
+  }
+
+  var campaignData = loadCampaignData();
+
   function uid() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
   }
@@ -860,6 +889,14 @@
     return input;
   }
 
+  function textareaInput(value, onChange, rows) {
+    var ta = document.createElement('textarea');
+    ta.value = value || '';
+    ta.rows = rows || 2;
+    ta.addEventListener('change', function () { onChange(ta.value); });
+    return ta;
+  }
+
   function renderPartyRow(pc) {
     var nameInput = textInput(pc.name, function (v) { pc.name = v; saveState(); });
     var acInput = numberInput(pc.ac, function (v) { pc.ac = v; saveState(); });
@@ -976,7 +1013,21 @@
       }
     });
 
-    var header = el('div', { class: 'npc-header' }, [nameInput, removeBtn]);
+    var addToRosterBtn = el('button', {
+      type: 'button', class: 'btn-small-outline', text: '+ Rubrica',
+      title: 'Salva questo PNG nella Rubrica persistente',
+      onclick: function () {
+        campaignData.roster.push({
+          id: uid(), type: 'png', name: npc.name, subtitle: '', location: '',
+          disposition: npc.side === 'ally' ? 'alleato' : 'nemico',
+          description: '', notes: 'Incontrato in combattimento.'
+        });
+        saveCampaignData();
+        renderRoster();
+      }
+    });
+
+    var header = el('div', { class: 'npc-header' }, [nameInput, addToRosterBtn, removeBtn]);
 
     var acInput = numberInput(npc.ac, function (v) { npc.ac = v; saveState(); });
     var hpCurInput = numberInput(npc.hpCur, function (v) { npc.hpCur = v; saveState(); });
@@ -1027,6 +1078,253 @@
     saveState();
     renderNpcs();
   });
+
+  // ---------------- ROSTER: PNG e Fazioni persistenti ----------------
+
+  var DISPOSITION_LABELS = { alleato: 'Alleato', neutrale: 'Neutrale', nemico: 'Nemico', sconosciuto: 'Sconosciuto' };
+
+  function renderRoster() {
+    var wrap = document.getElementById('rosterList');
+    var filterText = document.getElementById('rosterFilter').value.trim().toLowerCase();
+    var filterType = document.getElementById('rosterFilterType').value;
+    wrap.innerHTML = '';
+
+    var rows = campaignData.roster.filter(function (r) {
+      if (filterType && r.type !== filterType) return false;
+      if (!filterText) return true;
+      var blob = (r.name + ' ' + r.subtitle + ' ' + r.location + ' ' + r.description + ' ' + r.notes).toLowerCase();
+      return blob.indexOf(filterText) !== -1;
+    });
+
+    if (rows.length === 0) {
+      var hint = campaignData.roster.length === 0
+        ? 'Nessun PNG o fazione in rubrica. Aggiungine uno qui sotto, oppure salva un PNG dalla sezione "PNG in Combattimento".'
+        : 'Nessun risultato per questo filtro.';
+      wrap.appendChild(el('div', { class: 'empty-hint', text: hint }));
+      return;
+    }
+
+    rows.forEach(function (r) { wrap.appendChild(renderRosterCard(r)); });
+  }
+
+  function renderRosterCard(r) {
+    var nameInput = textInput(r.name, function (v) { r.name = v; saveCampaignData(); });
+    var subtitleInput = textInput(r.subtitle, function (v) { r.subtitle = v; saveCampaignData(); });
+    var locationInput = textInput(r.location, function (v) { r.location = v; saveCampaignData(); });
+
+    var dispSelect = el('select', {}, [
+      el('option', { value: 'sconosciuto', text: 'Sconosciuto' }),
+      el('option', { value: 'alleato', text: 'Alleato' }),
+      el('option', { value: 'neutrale', text: 'Neutrale' }),
+      el('option', { value: 'nemico', text: 'Nemico' })
+    ]);
+    dispSelect.value = r.disposition;
+    dispSelect.addEventListener('change', function () {
+      r.disposition = dispSelect.value;
+      saveCampaignData();
+      renderRoster();
+    });
+
+    var descArea = textareaInput(r.description, function (v) { r.description = v; saveCampaignData(); }, 2);
+    var notesArea = textareaInput(r.notes, function (v) { r.notes = v; saveCampaignData(); }, 2);
+
+    var removeBtn = el('button', {
+      type: 'button', class: 'btn-remove', text: '✕', title: 'Rimuovi dalla rubrica',
+      onclick: function () {
+        if (confirm('Rimuovere "' + r.name + '" dalla rubrica?')) {
+          campaignData.roster = campaignData.roster.filter(function (x) { return x.id !== r.id; });
+          saveCampaignData();
+          renderRoster();
+        }
+      }
+    });
+
+    var header = el('div', { class: 'roster-header' }, [
+      el('div', { class: 'roster-title-group' }, [
+        nameInput,
+        el('span', { class: 'roster-type-badge', text: r.type === 'fazione' ? 'Fazione' : 'PNG' })
+      ]),
+      removeBtn
+    ]);
+
+    var metaRow = el('div', { class: 'roster-meta' }, [
+      el('label', { text: 'Razza/Ruolo o Tipo' }, [subtitleInput]),
+      el('label', { text: 'Luogo' }, [locationInput]),
+      el('label', { text: 'Disposizione' }, [dispSelect])
+    ]);
+
+    return el('div', { class: 'roster-card roster-' + r.disposition }, [
+      header, metaRow,
+      el('label', { class: 'roster-textarea-label', text: 'Descrizione' }, [descArea]),
+      el('label', { class: 'roster-textarea-label', text: 'Note del GM' }, [notesArea])
+    ]);
+  }
+
+  document.getElementById('addRosterForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var type = document.getElementById('rosterType').value;
+    var name = document.getElementById('rosterName').value.trim();
+    var subtitle = document.getElementById('rosterSubtitle').value.trim();
+    var location = document.getElementById('rosterLocation').value.trim();
+    var disposition = document.getElementById('rosterDisposition').value;
+    if (!name) return;
+    campaignData.roster.push({
+      id: uid(), type: type, name: name, subtitle: subtitle, location: location,
+      disposition: disposition, description: '', notes: ''
+    });
+    e.target.reset();
+    saveCampaignData();
+    renderRoster();
+  });
+
+  document.getElementById('rosterFilter').addEventListener('input', renderRoster);
+  document.getElementById('rosterFilterType').addEventListener('change', renderRoster);
+
+  // ---------------- COMPENDIO: Oggetti, Tesori e Mostri persistenti ----------------
+
+  function renderCompendiumItems() {
+    var wrap = document.getElementById('compendiumItemList');
+    var filterText = document.getElementById('compendiumItemFilter').value.trim().toLowerCase();
+    wrap.innerHTML = '';
+
+    var rows = campaignData.compendiumItems.filter(function (it) {
+      if (!filterText) return true;
+      var blob = (it.name + ' ' + it.category + ' ' + it.rarity + ' ' + it.description + ' ' + it.notes).toLowerCase();
+      return blob.indexOf(filterText) !== -1;
+    });
+
+    if (rows.length === 0) {
+      var hint = campaignData.compendiumItems.length === 0
+        ? 'Nessun oggetto o tesoro nel compendio. Aggiungine uno qui sotto, oppure salvane uno dal Generatore di Tesori.'
+        : 'Nessun risultato per questo filtro.';
+      wrap.appendChild(el('div', { class: 'empty-hint', text: hint }));
+      return;
+    }
+
+    rows.forEach(function (it) { wrap.appendChild(renderCompendiumItemCard(it)); });
+  }
+
+  function renderCompendiumItemCard(it) {
+    var nameInput = textInput(it.name, function (v) { it.name = v; saveCampaignData(); });
+    var valueInput = textInput(it.value, function (v) { it.value = v; saveCampaignData(); });
+    var descArea = textareaInput(it.description, function (v) { it.description = v; saveCampaignData(); }, 2);
+
+    var removeBtn = el('button', {
+      type: 'button', class: 'btn-remove', text: '✕', title: 'Rimuovi dal compendio',
+      onclick: function () {
+        if (confirm('Rimuovere "' + it.name + '" dal compendio?')) {
+          campaignData.compendiumItems = campaignData.compendiumItems.filter(function (x) { return x.id !== it.id; });
+          saveCampaignData();
+          renderCompendiumItems();
+        }
+      }
+    });
+
+    var header = el('div', { class: 'compendium-header' }, [
+      el('div', { class: 'compendium-title-group' }, [
+        nameInput,
+        el('span', { class: 'compendium-badge', text: it.category || 'Oggetto' }),
+        el('span', { class: 'compendium-badge compendium-badge-rarity', text: it.rarity || 'Comune' })
+      ]),
+      removeBtn
+    ]);
+
+    return el('div', { class: 'compendium-card' }, [
+      header,
+      el('label', { class: 'roster-textarea-label', text: 'Valore' }, [valueInput]),
+      el('label', { class: 'roster-textarea-label', text: 'Descrizione / Note' }, [descArea])
+    ]);
+  }
+
+  document.getElementById('addCompendiumItemForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = document.getElementById('itemName').value.trim();
+    var category = document.getElementById('itemCategory').value;
+    var rarity = document.getElementById('itemRarity').value;
+    var value = document.getElementById('itemValue').value.trim();
+    if (!name) return;
+    campaignData.compendiumItems.push({ id: uid(), name: name, category: category, rarity: rarity, value: value, description: '', notes: '' });
+    e.target.reset();
+    saveCampaignData();
+    renderCompendiumItems();
+  });
+
+  document.getElementById('compendiumItemFilter').addEventListener('input', renderCompendiumItems);
+
+  function renderCompendiumMonsters() {
+    var wrap = document.getElementById('compendiumMonsterList');
+    var filterText = document.getElementById('compendiumMonsterFilter').value.trim().toLowerCase();
+    wrap.innerHTML = '';
+
+    var rows = campaignData.compendiumMonsters.filter(function (m) {
+      if (!filterText) return true;
+      var blob = (m.name + ' ' + m.cr + ' ' + m.description + ' ' + m.notes).toLowerCase();
+      return blob.indexOf(filterText) !== -1;
+    });
+
+    if (rows.length === 0) {
+      var hint = campaignData.compendiumMonsters.length === 0
+        ? 'Nessun mostro nel compendio. Aggiungine uno qui sotto, oppure salvane uno dal Costruttore Incontro.'
+        : 'Nessun risultato per questo filtro.';
+      wrap.appendChild(el('div', { class: 'empty-hint', text: hint }));
+      return;
+    }
+
+    rows.forEach(function (m) { wrap.appendChild(renderCompendiumMonsterCard(m)); });
+  }
+
+  function renderCompendiumMonsterCard(m) {
+    var nameInput = textInput(m.name, function (v) { m.name = v; saveCampaignData(); });
+    var crInput = textInput(m.cr, function (v) { m.cr = v; saveCampaignData(); });
+    var acInput = numberInput(m.ac, function (v) { m.ac = v; saveCampaignData(); });
+    var hpInput = numberInput(m.hp, function (v) { m.hp = v; saveCampaignData(); });
+    var descArea = textareaInput(m.description, function (v) { m.description = v; saveCampaignData(); }, 2);
+
+    var removeBtn = el('button', {
+      type: 'button', class: 'btn-remove', text: '✕', title: 'Rimuovi dal compendio',
+      onclick: function () {
+        if (confirm('Rimuovere "' + m.name + '" dal compendio?')) {
+          campaignData.compendiumMonsters = campaignData.compendiumMonsters.filter(function (x) { return x.id !== m.id; });
+          saveCampaignData();
+          renderCompendiumMonsters();
+        }
+      }
+    });
+
+    var header = el('div', { class: 'compendium-header' }, [
+      el('div', { class: 'compendium-title-group' }, [
+        nameInput,
+        el('span', { class: 'compendium-badge', text: 'GS ' + (m.cr || '?') })
+      ]),
+      removeBtn
+    ]);
+
+    var stats = el('div', { class: 'npc-stats' }, [
+      el('label', { text: 'GS' }, [crInput]),
+      el('label', { text: 'CA' }, [acInput]),
+      el('label', { text: 'PF' }, [hpInput])
+    ]);
+
+    return el('div', { class: 'compendium-card' }, [
+      header, stats,
+      el('label', { class: 'roster-textarea-label', text: 'Descrizione / Tattiche' }, [descArea])
+    ]);
+  }
+
+  document.getElementById('addCompendiumMonsterForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = document.getElementById('monsterName').value.trim();
+    var cr = document.getElementById('monsterCr').value.trim();
+    var ac = parseFloat(document.getElementById('monsterAc').value) || 0;
+    var hp = parseFloat(document.getElementById('monsterHp').value) || 0;
+    if (!name) return;
+    campaignData.compendiumMonsters.push({ id: uid(), name: name, cr: cr, ac: ac, hp: hp, description: '', notes: '' });
+    e.target.reset();
+    saveCampaignData();
+    renderCompendiumMonsters();
+  });
+
+  document.getElementById('compendiumMonsterFilter').addEventListener('input', renderCompendiumMonsters);
 
   // ---------------- NAME GENERATORS ----------------
 
@@ -1226,6 +1524,24 @@
     sheet.appendChild(el('div', { class: 'treasure-total', text: 'Valore totale stimato: ' + result.totalGp.toLocaleString('it-IT') + ' mo' }));
     sheet.appendChild(el('div', { class: 'treasure-hint', text: 'Valuta di aggiungere un oggetto magico adeguato a questo livello, a discrezione del Game Master.' }));
 
+    if (result.gems.length || result.art.length) {
+      sheet.appendChild(el('button', {
+        type: 'button', class: 'btn-secondary', text: '💾 Salva gemme e oggetti d\'arte nel Compendio',
+        style: 'margin-top:10px',
+        onclick: function () {
+          result.gems.forEach(function (g) {
+            campaignData.compendiumItems.push({ id: uid(), name: g.desc, category: 'Gioiello/Tesoro', rarity: '', value: g.value + ' mo', description: '', notes: 'Trovato come tesoro (' + result.tier.label + ').' });
+          });
+          result.art.forEach(function (a) {
+            campaignData.compendiumItems.push({ id: uid(), name: a.desc, category: 'Oggetto d\'arte', rarity: '', value: a.value + ' mo', description: '', notes: 'Trovato come tesoro (' + result.tier.label + ').' });
+          });
+          saveCampaignData();
+          renderCompendiumItems();
+          alert('Tesoro salvato nel Compendio.');
+        }
+      }));
+    }
+
     wrap.appendChild(sheet);
   }
 
@@ -1359,6 +1675,15 @@
         }
       });
 
+      var addToCompendiumBtn = el('button', {
+        type: 'button', class: 'btn-small-outline', text: '+ Comp.', title: 'Salva nel Compendio dei mostri',
+        onclick: function () {
+          campaignData.compendiumMonsters.push({ id: uid(), name: m.name, cr: m.cr, ac: m.ac, hp: m.hp, description: '', notes: 'Incontrato in uno scontro preparato.' });
+          saveCampaignData();
+          renderCompendiumMonsters();
+        }
+      });
+
       tbody.appendChild(el('tr', {}, [
         el('td', { text: m.name }),
         el('td', { text: 'GS ' + m.cr }),
@@ -1366,7 +1691,7 @@
         el('td', {}, [acInput]),
         el('td', {}, [hpInput]),
         el('td', { text: rowXp.toLocaleString('it-IT') }),
-        el('td', { class: 'col-actions' }, [removeBtn])
+        el('td', { class: 'col-actions' }, [addToCompendiumBtn, removeBtn])
       ]));
     });
 
@@ -1495,7 +1820,8 @@
   // ---------------- BACKUP: EXPORT / IMPORT JSON ----------------
 
   document.getElementById('exportDataBtn').addEventListener('click', function () {
-    var dataStr = JSON.stringify(state, null, 2);
+    var payload = { combatState: state, campaignData: campaignData };
+    var dataStr = JSON.stringify(payload, null, 2);
     var blob = new Blob([dataStr], { type: 'application/json' });
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
@@ -1524,11 +1850,21 @@
         alert('File non valido: impossibile leggere i dati JSON.');
         return;
       }
-      if (!confirm('Importare questi dati? Sovrascriveranno lo stato attuale.')) return;
+      if (!confirm('Importare questi dati? Sovrascriveranno lo stato attuale (combattimento, rubrica e compendio).')) return;
       stopTicker();
-      state = Object.assign(clone(defaultState), imported);
+      // Formato nuovo: { combatState, campaignData }. Formato legacy: solo lo stato del combattimento.
+      if (imported && (imported.combatState || imported.campaignData)) {
+        state = Object.assign(clone(defaultState), imported.combatState || {});
+        campaignData = Object.assign(clone(defaultCampaignData), imported.campaignData || {});
+      } else {
+        state = Object.assign(clone(defaultState), imported);
+      }
       saveState();
+      saveCampaignData();
       renderAll();
+      renderRoster();
+      renderCompendiumItems();
+      renderCompendiumMonsters();
       if (state.time.running) startTicker();
     };
     reader.readAsText(file);
@@ -1566,6 +1902,9 @@
   initWildMagicTable();
 
   renderAll();
+  renderRoster();
+  renderCompendiumItems();
+  renderCompendiumMonsters();
   if (state.time.running) startTicker();
 
 })();

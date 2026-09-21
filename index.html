@@ -26,7 +26,9 @@
     <a href="#sez-taverna">Taverna Casuale</a>
     <a href="#sez-incontro">Costruttore Incontro</a>
     <a href="#sez-tesoro">Tesori</a>
+    <a href="#sez-compendio">Compendio</a>
     <a href="#sez-png">PNG</a>
+    <a href="#sez-rubrica">Rubrica</a>
     <a href="#sez-iniziativa">Iniziativa</a>
     <a href="#sez-eventi-negativi">Eventi Negativi</a>
   </nav>
@@ -217,6 +219,51 @@
     <div id="treasureResult"></div>
   </section>
 
+  <section class="hb-section" id="sez-compendio">
+    <h2 class="section-title">Compendio di Oggetti, Tesori e Mostri</h2>
+    <p class="section-hint">Archivio persistente di ciò che il party trova o incontra: sopravvive al "Nuovo Combattimento" ed è sempre consultabile.</p>
+
+    <h3 class="group-title">Oggetti e Tesori</h3>
+    <div class="inline-form">
+      <input type="text" id="compendiumItemFilter" placeholder="Cerca oggetti...">
+    </div>
+    <div id="compendiumItemList" class="compendium-list"></div>
+    <form id="addCompendiumItemForm" class="inline-form">
+      <input type="text" id="itemName" placeholder="Nome oggetto" required>
+      <select id="itemCategory">
+        <option value="Arma">Arma</option>
+        <option value="Armatura">Armatura</option>
+        <option value="Pozione">Pozione</option>
+        <option value="Pergamena">Pergamena</option>
+        <option value="Gioiello/Tesoro">Gioiello/Tesoro</option>
+        <option value="Oggetto magico">Oggetto magico</option>
+        <option value="Altro">Altro</option>
+      </select>
+      <select id="itemRarity">
+        <option value="Comune">Comune</option>
+        <option value="Non comune">Non comune</option>
+        <option value="Raro">Raro</option>
+        <option value="Molto raro">Molto raro</option>
+        <option value="Leggendario">Leggendario</option>
+      </select>
+      <input type="text" id="itemValue" placeholder="Valore (es. 50 mo)">
+      <button type="submit">+ Aggiungi Oggetto</button>
+    </form>
+
+    <h3 class="group-title">Mostri Incontrati</h3>
+    <div class="inline-form">
+      <input type="text" id="compendiumMonsterFilter" placeholder="Cerca mostri...">
+    </div>
+    <div id="compendiumMonsterList" class="compendium-list"></div>
+    <form id="addCompendiumMonsterForm" class="inline-form">
+      <input type="text" id="monsterName" placeholder="Nome mostro" required>
+      <input type="text" id="monsterCr" placeholder="GS (es. 1/4, 5, 12)">
+      <input type="number" id="monsterAc" placeholder="CA">
+      <input type="number" id="monsterHp" placeholder="PF">
+      <button type="submit">+ Aggiungi Mostro</button>
+    </form>
+  </section>
+
   <section class="hb-section" id="sez-png">
     <h2 class="section-title">PNG in Combattimento</h2>
 
@@ -237,6 +284,36 @@
       <input type="number" id="npcHpMax" placeholder="PF massimi" required>
       <input type="number" id="npcInit" placeholder="Iniziativa" value="0">
       <button type="submit">+ Aggiungi PNG</button>
+    </form>
+  </section>
+
+  <section class="hb-section" id="sez-rubrica">
+    <h2 class="section-title">Rubrica di PNG e Fazioni</h2>
+    <p class="section-hint">Elenco persistente di PNG e fazioni della campagna: sopravvive al "Nuovo Combattimento" e resta disponibile per tutta l'avventura.</p>
+    <div class="inline-form">
+      <input type="text" id="rosterFilter" placeholder="Cerca per nome, luogo, nota...">
+      <select id="rosterFilterType">
+        <option value="">Tutti i tipi</option>
+        <option value="png">Solo PNG</option>
+        <option value="fazione">Solo Fazioni</option>
+      </select>
+    </div>
+    <div id="rosterList" class="roster-list"></div>
+    <form id="addRosterForm" class="inline-form">
+      <select id="rosterType">
+        <option value="png">PNG</option>
+        <option value="fazione">Fazione</option>
+      </select>
+      <input type="text" id="rosterName" placeholder="Nome" required>
+      <input type="text" id="rosterSubtitle" placeholder="Razza/ruolo o tipo di fazione">
+      <input type="text" id="rosterLocation" placeholder="Luogo/base">
+      <select id="rosterDisposition">
+        <option value="sconosciuto">Sconosciuto</option>
+        <option value="alleato">Alleato</option>
+        <option value="neutrale">Neutrale</option>
+        <option value="nemico">Nemico</option>
+      </select>
+      <button type="submit">+ Aggiungi alla Rubrica</button>
     </form>
   </section>
 
