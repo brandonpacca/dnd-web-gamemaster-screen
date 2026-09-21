@@ -13,13 +13,18 @@ Tutti i dati vengono salvati automaticamente nel `localStorage` del browser: nes
 - **Ira del barbaro**: aggiungi più barbari, ciascuno con numero massimo di ire configurabile
 - **Tabella del party**: Nome PG / CA / PF / Iniziativa / Danni subiti / Condizione (Prono, Immobilizzato), ordinabile cliccando sulle intestazioni di colonna
 - **Schede PNG in combattimento**: card separate per nemici e alleati con CA / PF / Iniziativa / Danni subiti / Condizione
+- **Ordine di Iniziativa**: unisce automaticamente party e PNG in un unico ordine di turno ordinato per Iniziativa, con controlli avanti/indietro; superare l'ultimo combattente incrementa da solo il Round
 
 ### Strumenti di preparazione ed improvvisazione
 - **Costruttore Incontro**: calcola la difficoltà di uno scontro con la stessa metodologia di soglie XP e moltiplicatori di Kobold Fight Club / Kobold+ (basata sulle regole del Manuale del Dungeon Master); permette di aggiungere mostri per Grado di Sfida e di trasformarli con un click in PNG nemici
+- **Generatore di Tesori**: monete, gemme e oggetti d'arte scalati su quattro fasce di Grado di Sfida, con valore totale stimato in monete d'oro
 - **Generatore di nomi PNG fantasy**: per razza (Umano, Elfo, Nano, Halfling, Orco/Goblin, Oscuro/Non-morto) e genere, con soprannome opzionale
 - **Generatore di nomi di luoghi fantasy**: per tipo (città, foresta, montagna, corso d'acqua, rovine, regno...)
 - **Taverna Casuale**: genera con un click una taverna completa di nome, locandiere, menù di cibo e bevande con prezzi, disponibilità e costo dei posti letto, PNG presenti (con descrizione fisica e caratteriale) e gossip attribuiti a loro
 - **Tabella Eventi Negativi (Wild Magic Surge)**: 100 scariche di magia selvaggia su tre livelli di gravità (Estremo/Moderato/Fastidio), consultabile con tiro rapido (d100 + d20) o ricerca per numero/parola chiave
+
+### Backup
+- **Esporta/Importa dati (JSON)**: scarica l'intero stato dell'app come file di backup e ripristinalo in seguito, utile perché i dati vivono solo nel `localStorage` del browser in uso
 
 Un menu di navigazione fisso in alto permette di raggiungere rapidamente ogni sezione.
 
