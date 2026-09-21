@@ -1,5 +1,7 @@
 # Schermo del Game Master — D&D 5e
 
+🔗 **Sito live**: https://brandonpacca.github.io/dnd-web-gamemaster-screen/
+
 Sito statico (HTML/CSS/JS, nessuna build necessaria) per tenere traccia degli aspetti principali di una campagna D&D 5e durante le sessioni di gioco, con una grafica ispirata a [Homebrewery](https://homebrewery.naturalcrit.com/).
 
 Tutti i dati vengono salvati automaticamente nel `localStorage` del browser: nessun server o database richiesto.
