@@ -13,12 +13,12 @@ Tutti i dati vengono salvati automaticamente nel `localStorage` del browser: nes
 - **Tempo trascorso**: cronometro avvia/pausa/azzera, con stima del tempo di gioco in base ai round (secondi/round configurabili)
 - **Spell slot dei caster**: aggiungi quanti incantatori servono, con slot per livello (1-9) e segnaposto cliccabili per marcare l'uso
 - **Ira del barbaro**: aggiungi più barbari, ciascuno con numero massimo di ire configurabile
-- **Tabella del party**: Nome PG / CA / PF / Iniziativa / Danni subiti / Condizione (Prono, Immobilizzato), ordinabile cliccando sulle intestazioni di colonna
+- **Tabella del party**: Nome PG / Razza / Classe / CA / PF / Iniziativa / Danni subiti / Condizione (Prono, Immobilizzato), ordinabile cliccando sulle intestazioni di colonna, con suggerimenti di razze/classi standard 5e
 - **Schede PNG in combattimento**: card separate per nemici e alleati con CA / PF / Iniziativa / Danni subiti / Condizione
 - **Ordine di Iniziativa**: unisce automaticamente party e PNG in un unico ordine di turno ordinato per Iniziativa, con controlli avanti/indietro; superare l'ultimo combattente incrementa da solo il Round
 
 ### Strumenti di preparazione ed improvvisazione
-- **Costruttore Incontro**: calcola la difficoltà di uno scontro con soglie XP e moltiplicatori basati sulle regole del Manuale del Dungeon Master; permette di aggiungere mostri per Grado di Sfida e di trasformarli con un click in PNG nemici
+- **Costruttore Incontro**: calcola la difficoltà di uno scontro con soglie XP e moltiplicatori basati sulle regole del Manuale del Dungeon Master; permette di scegliere un mostro dall'elenco dei contenuti aperti (SRD) o di inserirne uno personalizzato per Grado di Sfida, e di trasformarli con un click in PNG nemici
 - **Generatore di Tesori**: monete, gemme e oggetti d'arte scalati su quattro fasce di Grado di Sfida, con valore totale stimato in monete d'oro
 - **Generatore di nomi PNG fantasy**: per razza (Umano, Elfo, Nano, Halfling, Orco/Goblin, Oscuro/Non-morto) e genere, con soprannome opzionale
 - **Generatore di nomi di luoghi fantasy**: per tipo (città, foresta, montagna, corso d'acqua, rovine, regno...)
@@ -30,7 +30,7 @@ A differenza del tracciamento del combattimento, questi dati **sopravvivono** al
 - **Rubrica di PNG e Fazioni**: scheda per ogni PNG/fazione con razza o ruolo, luogo, disposizione (alleato/neutrale/nemico/sconosciuto), descrizione e note del GM, con ricerca e filtro per tipo. Un pulsante "+ Rubrica" sulle schede PNG di combattimento permette di salvare al volo un PNG ricorrente
 - **Diario di Sessione**: registro delle sessioni giocate (numerate automaticamente, data reale, data in-game, riassunto libero), ordinato dalla più recente con ricerca full-text
 - **Tracker Quest/Obiettivi**: quest con committente, stato (Attiva/In Sospeso/Completata/Fallita), ricompensa e una checklist di sotto-obiettivi da spuntare, ordinate con le attive in cima, con ricerca e filtro per stato
-- **Compendio**: archivio di oggetti/tesori e mostri incontrati, ciascuno con ricerca dedicata. Il Costruttore Incontro ha un pulsante "+ Comp." per salvare un mostro, e il Generatore di Tesori può salvare gemme e oggetti d'arte generati con un click. Include anche un **Generatore Casuale di Mostri** (filtrabile per Grado di Sfida) con dati meccanici — nome, tipo, GS, CA, PF — tratti dai contenuti aperti (SRD) delle regole ufficiali di D&D 5e
+- **Compendio**: archivio di oggetti/tesori e mostri incontrati, ciascuno con ricerca dedicata. Il Costruttore Incontro ha un pulsante "+ Comp." per salvare un mostro, e il Generatore di Tesori può salvare gemme e oggetti d'arte generati con un click. Include anche un **Generatore Casuale di Mostri** (filtrabile per Grado di Sfida) con dati meccanici — nome, tipo, GS, CA, PF — tratti dai contenuti aperti (SRD) delle regole ufficiali di D&D 5e, con indicazione della fonte e un campo per annotare manualmente manuale/pagina una volta verificati
 
 ### Backup
 - **Esporta/Importa dati (JSON)**: scarica in un unico file sia lo stato del combattimento sia i dati di campagna (rubrica, diario e compendio), e ripristinali in seguito — utile perché tutto vive solo nel `localStorage` del browser in uso

@@ -4,7 +4,10 @@
 
 - Tracker Quest/Obiettivi persistente, con checklist di sotto-obiettivi
 - Generatore Casuale di Mostri nel Compendio (filtrabile per Grado di Sfida), con dati
-  meccanici tratti dai contenuti aperti (SRD) delle regole ufficiali di D&D 5e
+  meccanici tratti dai contenuti aperti (SRD) delle regole ufficiali di D&D 5e, indicazione
+  della fonte e campo per annotare manualmente manuale/pagina
+- Campi Razza e Classe nella tabella Party, con suggerimenti delle opzioni standard 5e
+- Costruttore Incontro: selezione rapida di un mostro dall'elenco SRD, oltre all'inserimento manuale
 - Rimossi i riferimenti a "Kobold Fight Club" dal Costruttore Incontro
 
 ## v1.0.0
