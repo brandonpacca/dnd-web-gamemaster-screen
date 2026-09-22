@@ -19,6 +19,7 @@
 
   <nav class="hb-nav">
     <a href="#sez-riepilogo">Riepilogo</a>
+    <a href="#sez-iniziativa">Iniziativa</a>
     <a href="#sez-round-tempo">Round &amp; Tempo</a>
     <a href="#sez-spell-slot">Spell Slot</a>
     <a href="#sez-ira">Ira del Barbaro</a>
@@ -32,7 +33,6 @@
     <a href="#sez-rubrica">Rubrica</a>
     <a href="#sez-diario">Diario</a>
     <a href="#sez-quest">Quest</a>
-    <a href="#sez-iniziativa">Iniziativa</a>
     <a href="#sez-eventi-negativi">Eventi Negativi</a>
   </nav>
 
@@ -40,6 +40,17 @@
     <h2 class="section-title">Riepilogo</h2>
     <p class="section-hint">Colpo d'occhio sullo stato attuale: round, turno, PF critici, quest aperte e ultima sessione registrata.</p>
     <div id="dashboardContent"></div>
+  </section>
+
+  <section class="hb-section" id="sez-iniziativa">
+    <h2 class="section-title">Ordine di Iniziativa</h2>
+    <p class="section-hint">Ordine di turno combinato di PG e PNG, calcolato automaticamente dai valori di Iniziativa inseriti nelle sezioni Party e PNG. Avanzare oltre l'ultimo combattente incrementa automaticamente il Round.</p>
+    <div class="btn-row" style="justify-content:flex-start">
+      <button type="button" id="initPrevBtn">◀ Turno precedente</button>
+      <button type="button" id="initNextBtn">Prossimo turno ▶</button>
+      <button type="button" id="initResetBtn" class="btn-secondary">Azzera turno attivo</button>
+    </div>
+    <div id="initiativeList" class="initiative-list"></div>
   </section>
 
   <section class="hb-section" id="sez-round-tempo">
@@ -413,17 +424,6 @@
     </form>
   </section>
 
-  <section class="hb-section" id="sez-iniziativa">
-    <h2 class="section-title">Ordine di Iniziativa</h2>
-    <p class="section-hint">Ordine di turno combinato di PG e PNG, calcolato automaticamente dai valori di Iniziativa inseriti nelle sezioni Party e PNG. Avanzare oltre l'ultimo combattente incrementa automaticamente il Round.</p>
-    <div class="btn-row" style="justify-content:flex-start">
-      <button type="button" id="initPrevBtn">◀ Turno precedente</button>
-      <button type="button" id="initNextBtn">Prossimo turno ▶</button>
-      <button type="button" id="initResetBtn" class="btn-secondary">Azzera turno attivo</button>
-    </div>
-    <div id="initiativeList" class="initiative-list"></div>
-  </section>
-
   <section class="hb-section" id="sez-eventi-negativi">
     <h2 class="section-title">Tabella Eventi Negativi (Wild Magic Surge)</h2>
     <p class="section-hint">Scariche di magia selvaggia in tre livelli di gravità. Tira un d100 per la riga, poi un d20 per la gravità: 1-3 Estremo, 4-9 Moderato, 10-20 Fastidio.</p>
@@ -451,6 +451,12 @@
         </thead>
         <tbody id="wmBody"></tbody>
       </table>
+    </div>
+
+    <div class="btn-row wm-pagination">
+      <button type="button" id="wmPrevBtn" class="btn-secondary">◀ Precedente</button>
+      <span id="wmPageInfo" class="wm-page-info"></span>
+      <button type="button" id="wmNextBtn" class="btn-secondary">Successiva ▶</button>
     </div>
   </section>
 

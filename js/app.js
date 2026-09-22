@@ -585,7 +585,7 @@
     roster: [],             // { id, type: 'png'|'fazione', name, subtitle, location, disposition, description, notes }
     compendiumItems: [],    // { id, name, category, rarity, value, description, notes }
     compendiumMonsters: [], // { id, name, cr, ac, hp, description, notes }
-    sessions: [],           // { id, number, title, realDate, gameDate, summary }
+    sessions: [],           // { id, number, title, realDate, gameDate, summary, notes }
     quests: []              // { id, title, giver, status, description, reward, notes, objectives: [{id, text, done}] }
   };
 
@@ -1354,6 +1354,7 @@
     realDateInput.addEventListener('change', function () { s.realDate = realDateInput.value; saveCampaignData(); });
     var gameDateInput = textInput(s.gameDate, function (v) { s.gameDate = v; saveCampaignData(); });
     var summaryArea = textareaInput(s.summary, function (v) { s.summary = v; saveCampaignData(); }, 6);
+    var notesArea = textareaInput(s.notes, function (v) { s.notes = v; saveCampaignData(); }, 3);
 
     var removeBtn = el('button', {
       type: 'button', class: 'btn-remove', text: '✕', title: 'Rimuovi sessione',
@@ -1381,7 +1382,8 @@
 
     return el('div', { class: 'session-card' }, [
       header, metaRow,
-      el('label', { class: 'roster-textarea-label', text: 'Riassunto della sessione' }, [summaryArea])
+      el('label', { class: 'roster-textarea-label', text: 'Riassunto della sessione' }, [summaryArea]),
+      el('label', { class: 'roster-textarea-label', text: 'Note' }, [notesArea])
     ]);
   }
 
@@ -1392,7 +1394,7 @@
     var gameDate = document.getElementById('sessionGameDate').value.trim();
     if (!title) return;
     var nextNumber = campaignData.sessions.reduce(function (max, s) { return Math.max(max, s.number); }, 0) + 1;
-    campaignData.sessions.push({ id: uid(), number: nextNumber, title: title, realDate: realDate, gameDate: gameDate, summary: '' });
+    campaignData.sessions.push({ id: uid(), number: nextNumber, title: title, realDate: realDate, gameDate: gameDate, summary: '', notes: '' });
     e.target.reset();
     saveCampaignData();
     renderSessions();
@@ -2198,25 +2200,63 @@
 
   // ---------------- WILD MAGIC / EVENTI NEGATIVI ----------------
 
-  function initWildMagicTable() {
+  var WM_PAGE_SIZE = 10;
+  var wmCurrentPage = 1;
+
+  function renderWmTable() {
     var tbody = document.getElementById('wmBody');
-    WILD_MAGIC_TABLE.forEach(function (entry, idx) {
-      var num = idx + 1;
-      var searchBlob = (num + ' ' + entry.e + ' ' + entry.m + ' ' + entry.n).toLowerCase();
-      tbody.appendChild(el('tr', { 'data-search': searchBlob }, [
-        el('td', { text: num }),
-        el('td', { text: entry.e }),
-        el('td', { text: entry.m }),
-        el('td', { text: entry.n })
-      ]));
+    var q = document.getElementById('wmFilter').value.trim().toLowerCase();
+    tbody.innerHTML = '';
+
+    var filtered = WILD_MAGIC_TABLE.map(function (entry, idx) {
+      return { num: idx + 1, e: entry.e, m: entry.m, n: entry.n };
+    }).filter(function (row) {
+      if (!q) return true;
+      var blob = (row.num + ' ' + row.e + ' ' + row.m + ' ' + row.n).toLowerCase();
+      return blob.indexOf(q) !== -1;
     });
 
-    document.getElementById('wmFilter').addEventListener('input', function (e) {
-      var q = e.target.value.trim().toLowerCase();
-      tbody.querySelectorAll('tr').forEach(function (tr) {
-        var match = !q || tr.getAttribute('data-search').indexOf(q) !== -1;
-        tr.style.display = match ? '' : 'none';
+    var totalPages = Math.max(1, Math.ceil(filtered.length / WM_PAGE_SIZE));
+    wmCurrentPage = Math.min(Math.max(1, wmCurrentPage), totalPages);
+
+    var start = (wmCurrentPage - 1) * WM_PAGE_SIZE;
+    var pageRows = filtered.slice(start, start + WM_PAGE_SIZE);
+
+    if (pageRows.length === 0) {
+      tbody.appendChild(el('tr', {}, [el('td', { colspan: '4', class: 'empty-hint', text: 'Nessun risultato per questo filtro.' })]));
+    } else {
+      pageRows.forEach(function (row) {
+        tbody.appendChild(el('tr', {}, [
+          el('td', { text: row.num }),
+          el('td', { text: row.e }),
+          el('td', { text: row.m }),
+          el('td', { text: row.n })
+        ]));
       });
+    }
+
+    document.getElementById('wmPageInfo').textContent =
+      'Pagina ' + wmCurrentPage + ' di ' + totalPages + ' (' + filtered.length + ' risultati)';
+    document.getElementById('wmPrevBtn').disabled = wmCurrentPage <= 1;
+    document.getElementById('wmNextBtn').disabled = wmCurrentPage >= totalPages;
+  }
+
+  function initWildMagicTable() {
+    renderWmTable();
+
+    document.getElementById('wmFilter').addEventListener('input', function () {
+      wmCurrentPage = 1;
+      renderWmTable();
+    });
+
+    document.getElementById('wmPrevBtn').addEventListener('click', function () {
+      wmCurrentPage--;
+      renderWmTable();
+    });
+
+    document.getElementById('wmNextBtn').addEventListener('click', function () {
+      wmCurrentPage++;
+      renderWmTable();
     });
 
     document.getElementById('wmRollBtn').addEventListener('click', rollWildMagic);

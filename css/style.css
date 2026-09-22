@@ -1293,6 +1293,24 @@ input[type="number"] { width: 80px; }
   margin-bottom: 6px;
 }
 
+.wm-pagination {
+  justify-content: center;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.wm-page-info {
+  font-size: 0.9em;
+  color: #4a3420;
+  min-width: 200px;
+  text-align: center;
+}
+
+.wm-pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .wm-result-text {
   font-size: 1.02em;
   line-height: 1.5;
