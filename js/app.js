@@ -396,16 +396,16 @@
   ];
 
   var TREASURE_TIERS = [
-    { label: 'GS 0-4 (basso livello)', coins: { cp: [50, 600], sp: [50, 300], gp: [0, 100], pp: [0, 0] }, gemChance: 0.5, gemValue: [10, 50], gemCount: [1, 3], artChance: 0.2, artValue: [25, 100] },
-    { label: 'GS 5-10 (livello medio)', coins: { cp: [0, 0], sp: [100, 600], gp: [200, 800], pp: [0, 50] }, gemChance: 0.65, gemValue: [50, 250], gemCount: [2, 4], artChance: 0.35, artValue: [100, 500] },
-    { label: 'GS 11-16 (livello alto)', coins: { cp: [0, 0], sp: [0, 0], gp: [1000, 4000], pp: [100, 400] }, gemChance: 0.75, gemValue: [500, 2000], gemCount: [2, 6], artChance: 0.5, artValue: [500, 2500] },
-    { label: 'GS 17+ (epico)', coins: { cp: [0, 0], sp: [0, 0], gp: [5000, 15000], pp: [1000, 3000] }, gemChance: 0.85, gemValue: [2000, 7500], gemCount: [3, 8], artChance: 0.65, artValue: [2500, 10000] }
+    { label: 'GS 0-4 (basso livello)', coins: { mr: [50, 600], ma: [50, 300], mo: [0, 100], mp: [0, 0] }, gemChance: 0.5, gemValue: [10, 50], gemCount: [1, 3], artChance: 0.2, artValue: [25, 100] },
+    { label: 'GS 5-10 (livello medio)', coins: { mr: [0, 0], ma: [100, 600], mo: [200, 800], mp: [0, 50] }, gemChance: 0.65, gemValue: [50, 250], gemCount: [2, 4], artChance: 0.35, artValue: [100, 500] },
+    { label: 'GS 11-16 (livello alto)', coins: { mr: [0, 0], ma: [0, 0], mo: [1000, 4000], mp: [100, 400] }, gemChance: 0.75, gemValue: [500, 2000], gemCount: [2, 6], artChance: 0.5, artValue: [500, 2500] },
+    { label: 'GS 17+ (epico)', coins: { mr: [0, 0], ma: [0, 0], mo: [5000, 15000], mp: [1000, 3000] }, gemChance: 0.85, gemValue: [2000, 7500], gemCount: [3, 8], artChance: 0.65, artValue: [2500, 10000] }
   ];
 
   function generateTreasure(tierIdx) {
     var tier = TREASURE_TIERS[tierIdx] || TREASURE_TIERS[0];
     var coins = {};
-    ['cp', 'sp', 'gp', 'pp'].forEach(function (denom) {
+    ['mr', 'ma', 'mo', 'mp'].forEach(function (denom) {
       var range = tier.coins[denom];
       coins[denom] = range[1] > 0 ? randInt(range[0], range[1]) : 0;
     });
@@ -426,7 +426,7 @@
       }
     }
 
-    var totalGp = coins.cp / 100 + coins.sp / 10 + coins.gp + coins.pp * 10;
+    var totalGp = coins.mr / 100 + coins.ma / 10 + coins.mo + coins.mp * 10;
     gems.forEach(function (g) { totalGp += g.value; });
     art.forEach(function (a) { totalGp += a.value; });
 
@@ -1900,7 +1900,7 @@
     wrap.innerHTML = '';
 
     var coinParts = [];
-    ['pp', 'gp', 'sp', 'cp'].forEach(function (d) {
+    ['mp', 'mo', 'ma', 'mr'].forEach(function (d) {
       if (result.coins[d] > 0) coinParts.push(result.coins[d] + ' ' + d);
     });
     var coinsText = coinParts.length ? coinParts.join(', ') : 'Nessuna moneta.';
