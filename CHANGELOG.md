@@ -13,6 +13,10 @@
   livello di Sfinimento, per party e PNG, con migrazione automatica dei dati salvati
 - Nuova sezione Riepilogo (dashboard) in cima alla pagina: round, tempo, turno attivo,
   PF critici, quest aperte, ultima sessione
+- Monete del Generatore di Tesori tradotte in italiano (mr/ma/mo/mp)
+- Campo Note nel Diario di Sessione, separato dal riassunto
+- Ordine di Iniziativa spostato subito dopo il Riepilogo
+- Tabella Eventi Negativi paginata (10 righe alla volta) invece di un'unica lista lunga
 
 ## v1.0.0
 

@@ -27,12 +27,12 @@ Tutti i dati vengono salvati automaticamente nel `localStorage` del browser: nes
 - **Generatore di nomi PNG fantasy**: per razza (Umano, Elfo, Nano, Halfling, Orco/Goblin, Oscuro/Non-morto) e genere, con soprannome opzionale
 - **Generatore di nomi di luoghi fantasy**: per tipo (città, foresta, montagna, corso d'acqua, rovine, regno...)
 - **Taverna Casuale**: genera con un click una taverna completa di nome, locandiere, menù di cibo e bevande con prezzi, disponibilità e costo dei posti letto, PNG presenti (con descrizione fisica e caratteriale) e gossip attribuiti a loro
-- **Tabella Eventi Negativi (Wild Magic Surge)**: 100 scariche di magia selvaggia su tre livelli di gravità (Estremo/Moderato/Fastidio), consultabile con tiro rapido (d100 + d20) o ricerca per numero/parola chiave
+- **Tabella Eventi Negativi (Wild Magic Surge)**: 100 scariche di magia selvaggia su tre livelli di gravità (Estremo/Moderato/Fastidio), consultabile a pagine da 10 righe con tiro rapido (d100 + d20) o ricerca per numero/parola chiave
 
 ### Dati di campagna persistenti
 A differenza del tracciamento del combattimento, questi dati **sopravvivono** al pulsante "Nuovo Combattimento" e restano disponibili per l'intera campagna:
 - **Rubrica di PNG e Fazioni**: scheda per ogni PNG/fazione con razza o ruolo, luogo, disposizione (alleato/neutrale/nemico/sconosciuto), descrizione e note del GM, con ricerca e filtro per tipo. Un pulsante "+ Rubrica" sulle schede PNG di combattimento permette di salvare al volo un PNG ricorrente
-- **Diario di Sessione**: registro delle sessioni giocate (numerate automaticamente, data reale, data in-game, riassunto libero), ordinato dalla più recente con ricerca full-text
+- **Diario di Sessione**: registro delle sessioni giocate (numerate automaticamente, data reale, data in-game, riassunto libero e campo Note separato), ordinato dalla più recente con ricerca full-text
 - **Tracker Quest/Obiettivi**: quest con committente, stato (Attiva/In Sospeso/Completata/Fallita), ricompensa e una checklist di sotto-obiettivi da spuntare, ordinate con le attive in cima, con ricerca e filtro per stato
 - **Compendio**: archivio di oggetti/tesori e mostri incontrati, ciascuno con ricerca dedicata. Il Costruttore Incontro ha un pulsante "+ Comp." per salvare un mostro, e il Generatore di Tesori può salvare gemme e oggetti d'arte generati con un click. Include anche un **Generatore Casuale di Mostri** (filtrabile per Grado di Sfida) con dati meccanici — nome, tipo, GS, CA, PF — tratti dai contenuti aperti (SRD) delle regole ufficiali di D&D 5e, con indicazione della fonte e un campo per annotare manualmente manuale/pagina una volta verificati
 
