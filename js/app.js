@@ -629,6 +629,8 @@
       delete entity.restrained;
     }
     if (typeof entity.exhaustion !== 'number') entity.exhaustion = 0;
+    if (!entity.concentration) entity.concentration = { active: false, spell: '' };
+    if (!entity.deathSaves) entity.deathSaves = { success: 0, failure: 0 };
   }
 
   function loadState() {
@@ -823,7 +825,8 @@
       onclick: function () {
         state.party.push({
           id: uid(), name: caster.name, race: '', className: caster.className || '',
-          ac: 10, hpCur: 10, hpMax: 10, init: 0, damage: 0, conditions: [], exhaustion: 0
+          ac: 10, hpCur: 10, hpMax: 10, init: 0, damage: 0, conditions: [], exhaustion: 0,
+          concentration: { active: false, spell: '' }, deathSaves: { success: 0, failure: 0 }
         });
         saveState();
         renderParty();
@@ -962,7 +965,8 @@
         onclick: function () {
           state.party.push({
             id: uid(), name: r.name, race: '', className: 'Barbaro',
-            ac: 10, hpCur: 10, hpMax: 10, init: 0, damage: 0, conditions: [], exhaustion: 0
+            ac: 10, hpCur: 10, hpMax: 10, init: 0, damage: 0, conditions: [], exhaustion: 0,
+            concentration: { active: false, spell: '' }, deathSaves: { success: 0, failure: 0 }
           });
           saveState();
           renderParty();
@@ -1097,6 +1101,9 @@
   function conditionText(row) {
     var c = (row.conditions || []).map(function (key) { return CONDITION_LABELS[key] || key; });
     if (row.exhaustion) c.push('Sfinimento ' + row.exhaustion);
+    if (row.concentration && row.concentration.active) {
+      c.push('Concentrazione' + (row.concentration.spell ? ' (' + row.concentration.spell + ')' : ''));
+    }
     return c.join(', ');
   }
 
@@ -1126,6 +1133,71 @@
       exhInput
     ]));
 
+    var concWrap = el('span', { class: 'concentration-wrap' });
+    var concToggle = el('button', {
+      type: 'button',
+      class: 'concentration-toggle' + (entity.concentration.active ? ' concentration-active' : ''),
+      text: '🎯 Concentrazione',
+      title: 'Attiva/disattiva la concentrazione su un incantesimo',
+      onclick: function () {
+        entity.concentration.active = !entity.concentration.active;
+        onChange();
+      }
+    });
+    concWrap.appendChild(concToggle);
+    if (entity.concentration.active) {
+      var spellInput = el('input', {
+        type: 'text', value: entity.concentration.spell || '', placeholder: 'Incantesimo',
+        class: 'concentration-spell-input'
+      });
+      spellInput.addEventListener('change', function () {
+        entity.concentration.spell = spellInput.value;
+        onChange();
+      });
+      concWrap.appendChild(spellInput);
+    }
+    wrap.appendChild(concWrap);
+
+    return wrap;
+  }
+
+  function renderDeathSaves(pc, onChange) {
+    var ds = pc.deathSaves;
+    var wrap = el('div', { class: 'death-saves' });
+
+    if (ds.success >= 3 || ds.failure >= 3) {
+      var dead = ds.failure >= 3;
+      wrap.appendChild(el('span', {
+        class: 'death-save-status ' + (dead ? 'dead' : 'stable'),
+        text: dead ? '☠️ Morto' : '✔ Stabilizzato'
+      }));
+      wrap.appendChild(el('button', {
+        type: 'button', class: 'death-save-reset', text: 'Azzera',
+        onclick: function () { ds.success = 0; ds.failure = 0; onChange(); }
+      }));
+      return wrap;
+    }
+
+    function pipsRow(label, count, cls, onPip) {
+      var pips = el('div', { class: 'pips death-save-pips' });
+      for (var i = 0; i < 3; i++) {
+        (function (index) {
+          var used = index < count;
+          pips.appendChild(el('button', {
+            type: 'button',
+            class: 'pip ' + cls + (used ? ' used' : ''),
+            onclick: function () { onPip(index < count ? index : index + 1); }
+          }));
+        })(i);
+      }
+      return el('div', { class: 'death-save-row' }, [
+        el('span', { class: 'death-save-label', text: label }),
+        pips
+      ]);
+    }
+
+    wrap.appendChild(pipsRow('Successi', ds.success, 'death-pip-success', function (v) { ds.success = v; onChange(); }));
+    wrap.appendChild(pipsRow('Fallimenti', ds.failure, 'death-pip-failure', function (v) { ds.failure = v; onChange(); }));
     return wrap;
   }
 
@@ -1205,12 +1277,20 @@
     var classInput = el('input', { type: 'text', value: pc.className, list: 'classOptions' });
     classInput.addEventListener('change', function () { pc.className = classInput.value; saveState(); });
     var acInput = numberInput(pc.ac, function (v) { pc.ac = v; saveState(); });
-    var hpCurInput = numberInput(pc.hpCur, function (v) { pc.hpCur = v; saveState(); }, '56px');
+    var hpCurInput = numberInput(pc.hpCur, function (v) {
+      pc.hpCur = v;
+      if (v > 0) { pc.deathSaves.success = 0; pc.deathSaves.failure = 0; }
+      saveState();
+      renderParty();
+    }, '56px');
     var hpMaxInput = numberInput(pc.hpMax, function (v) { pc.hpMax = v; saveState(); }, '56px');
     var initInput = numberInput(pc.init, function (v) { pc.init = v; saveState(); renderParty(); });
     var dmgInput = numberInput(pc.damage, function (v) { pc.damage = v; saveState(); });
 
     var hpCell = el('td', {}, [hpCurInput, el('span', { text: ' / ' }), hpMaxInput]);
+    if (pc.hpCur <= 0) {
+      hpCell.appendChild(renderDeathSaves(pc, function () { saveState(); renderParty(); }));
+    }
 
     var condCell = el('td', { class: 'condition-cell' }, [
       renderConditionPicker(pc, function () { saveState(); renderParty(); })
@@ -1253,7 +1333,8 @@
     if (!name) return;
     state.party.push({
       id: uid(), name: name, race: race, className: className, ac: ac, hpCur: hpCur, hpMax: hpMax,
-      init: init, damage: 0, conditions: [], exhaustion: 0
+      init: init, damage: 0, conditions: [], exhaustion: 0,
+      concentration: { active: false, spell: '' }, deathSaves: { success: 0, failure: 0 }
     });
     e.target.reset();
     saveState();
@@ -1360,7 +1441,8 @@
     if (!name) return;
     state.npcs.push({
       id: uid(), name: name, side: side, ac: ac, hpCur: hpCur, hpMax: hpMax,
-      init: init, damage: 0, conditions: [], exhaustion: 0
+      init: init, damage: 0, conditions: [], exhaustion: 0,
+      concentration: { active: false, spell: '' }
     });
     e.target.reset();
     document.getElementById('npcInit').value = '0';
@@ -2329,7 +2411,8 @@
           name: m.qty > 1 ? m.name + ' ' + i : m.name,
           side: 'enemy',
           ac: m.ac, hpCur: m.hp, hpMax: m.hp,
-          init: 0, damage: 0, conditions: [], exhaustion: 0
+          init: 0, damage: 0, conditions: [], exhaustion: 0,
+          concentration: { active: false, spell: '' }
         });
       }
     });
@@ -2533,6 +2616,46 @@
       })));
     }
     wrap.appendChild(criticalSection);
+
+    // Tiri salvezza contro la morte in corso (party a 0 PF e non ancora stabile/morto)
+    var dying = state.party.filter(function (pc) {
+      return pc.hpCur <= 0 && pc.deathSaves.success < 3 && pc.deathSaves.failure < 3;
+    });
+    var deathSection = el('div', { class: 'dashboard-section' }, [
+      el('div', { class: 'dashboard-section-title', text: '☠️ Tiri Salvezza contro la Morte' })
+    ]);
+    if (dying.length === 0) {
+      deathSection.appendChild(el('div', { class: 'empty-hint', text: 'Nessuno al momento.' }));
+    } else {
+      deathSection.appendChild(el('ul', { class: 'dashboard-list' }, dying.map(function (pc) {
+        return el('li', { text: pc.name + ' — ' + pc.deathSaves.success + '✔ / ' + pc.deathSaves.failure + '✘' });
+      })));
+    }
+    wrap.appendChild(deathSection);
+
+    // Concentrazione attiva (party + PNG)
+    var concentrating = [];
+    state.party.forEach(function (pc) {
+      if (pc.concentration && pc.concentration.active) {
+        concentrating.push(pc.name + (pc.concentration.spell ? ' — ' + pc.concentration.spell : ''));
+      }
+    });
+    state.npcs.forEach(function (n) {
+      if (n.concentration && n.concentration.active) {
+        concentrating.push(n.name + (n.concentration.spell ? ' — ' + n.concentration.spell : ''));
+      }
+    });
+    var concSection = el('div', { class: 'dashboard-section' }, [
+      el('div', { class: 'dashboard-section-title', text: '🎯 Concentrazione attiva' })
+    ]);
+    if (concentrating.length === 0) {
+      concSection.appendChild(el('div', { class: 'empty-hint', text: 'Nessuno al momento.' }));
+    } else {
+      concSection.appendChild(el('ul', { class: 'dashboard-list' }, concentrating.map(function (t) {
+        return el('li', { text: t });
+      })));
+    }
+    wrap.appendChild(concSection);
 
     // Quest aperte
     var openQuests = campaignData.quests.filter(function (q) { return q.status === 'attiva' || q.status === 'sospeso'; });

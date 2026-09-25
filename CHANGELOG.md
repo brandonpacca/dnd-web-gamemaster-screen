@@ -22,6 +22,10 @@
 - Pulsante "Aggiungi al Party" sulle schede caster e barbaro per aggiungerli alla tabella Party
 - Ire del barbaro calcolate automaticamente dal livello (regole 5e 2014), incluse le
   ire illimitate al 20° livello
+- Tiri Salvezza contro la Morte per i PG a 0 PF (3 successi/3 fallimenti), con
+  stabilizzazione o morte automatiche e azzeramento quando i PF tornano sopra 0
+- Tracciamento della Concentrazione (attiva/incantesimo) per party e PNG, visibile anche
+  nel Riepilogo
 
 ## v1.0.0
 

@@ -9,7 +9,7 @@ Tutti i dati vengono salvati automaticamente nel `localStorage` del browser: nes
 ## Funzionalità
 
 ### Riepilogo
-- **Dashboard** in cima alla pagina con un colpo d'occhio sullo stato corrente: round e tempo trascorso, turno attivo, party/PNG con PF critici (≤25%), quest aperte e ultima sessione registrata — aggiornata automaticamente ad ogni modifica
+- **Dashboard** in cima alla pagina con un colpo d'occhio sullo stato corrente: round e tempo trascorso, turno attivo, party/PNG con PF critici (≤25%), PG che stanno tirando salvezza contro la morte, chi è in concentrazione, quest aperte e ultima sessione registrata — aggiornata automaticamente ad ogni modifica
 
 ### Tracciamento del combattimento
 - **Round**: contatore incrementabile/decrementabile
@@ -18,7 +18,8 @@ Tutti i dati vengono salvati automaticamente nel `localStorage` del browser: nes
 - **Ira del barbaro**: aggiungi più barbari; scegliendo il livello il numero di ire viene calcolato automaticamente secondo le regole 5e (2014), fino alle ire illimitate del 20° livello, restando comunque modificabile a mano. Un pulsante "Aggiungi al Party" aggiunge il barbaro alla tabella Party
 - **Tabella del party**: Nome PG / Razza / Classe / CA / PF / Iniziativa / Danni subiti / Condizione, ordinabile cliccando sulle intestazioni di colonna, con suggerimenti di razze/classi standard 5e
 - **Schede PNG in combattimento**: card separate per nemici e alleati con CA / PF / Iniziativa / Danni subiti / Condizione
-- **Condizioni**: tutte le 14 condizioni della 5e (Accecato, Affascinato, Assordato, Spaventato, Afferrato, Incapacitato, Invisibile, Paralizzato, Pietrificato, Avvelenato, Prono, Trattenuto, Stordito, Privo di sensi) come segnaposto cliccabili, più il livello di Sfinimento (0-6), sia per il party sia per i PNG
+- **Condizioni**: tutte le 14 condizioni della 5e (Accecato, Affascinato, Assordato, Spaventato, Afferrato, Incapacitato, Invisibile, Paralizzato, Pietrificato, Avvelenato, Prono, Trattenuto, Stordito, Privo di sensi) come segnaposto cliccabili, più il livello di Sfinimento (0-6) e la **Concentrazione** (attiva/incantesimo), sia per il party sia per i PNG
+- **Tiri Salvezza contro la Morte**: quando un PG scende a 0 PF, la scheda party mostra i segnaposto per 3 successi/3 fallimenti; al terzo successo il PG risulta stabilizzato, al terzo fallimento è morto, e tutto si azzera automaticamente non appena torna sopra 0 PF
 - **Ordine di Iniziativa**: unisce automaticamente party e PNG in un unico ordine di turno ordinato per Iniziativa, con controlli avanti/indietro; superare l'ultimo combattente incrementa da solo il Round
 
 ### Strumenti di preparazione ed improvvisazione

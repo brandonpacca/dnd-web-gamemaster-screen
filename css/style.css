@@ -544,6 +544,83 @@ input[type="number"] { width: 80px; }
   width: 40px !important;
 }
 
+.concentration-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+}
+
+.concentration-toggle {
+  font-size: 0.72em;
+  padding: 2px 7px;
+  border-radius: 10px;
+  border: 1px solid #a98f5c;
+  background: rgba(255,255,255,0.5);
+  color: #5a4526;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.concentration-toggle:hover { border-color: var(--maroon); }
+
+.concentration-active {
+  background: #2f6f4f;
+  border-color: #1f4a34;
+  color: #fff;
+}
+
+.concentration-spell-input {
+  width: 110px !important;
+  font-size: 0.8em;
+}
+
+.death-saves {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.death-save-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.death-save-label {
+  font-size: 0.7em;
+  text-transform: uppercase;
+  color: #4a3420;
+  min-width: 60px;
+  white-space: nowrap;
+}
+
+.death-save-pips .pip {
+  width: 14px;
+  height: 14px;
+}
+
+.death-pip-success.used { background: #2f6f4f; border-color: #1f4a34; }
+.death-pip-failure.used { background: var(--red); border-color: #7a1d1d; }
+
+.death-save-status {
+  font-family: 'MedievalSharp', cursive;
+  font-weight: 700;
+  font-size: 0.9em;
+}
+.death-save-status.dead { color: var(--red); }
+.death-save-status.stable { color: #2f6f4f; }
+
+.death-save-reset {
+  font-size: 0.72em;
+  margin-left: 6px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  border: 1px solid #a98f5c;
+  background: transparent;
+  cursor: pointer;
+}
+
 .condition-badges {
   display: flex;
   gap: 4px;
