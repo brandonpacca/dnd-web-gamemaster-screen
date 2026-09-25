@@ -818,7 +818,7 @@
 
   function renderCasterCard(caster) {
     var addToPartyBtn = el('button', {
-      type: 'button', class: 'btn-small-outline', text: '+ Party',
+      type: 'button', text: 'Aggiungi al Party',
       title: 'Aggiungi questo caster alla tabella Party',
       onclick: function () {
         state.party.push({
@@ -957,7 +957,7 @@
     }
     state.rages.forEach(function (r) {
       var addToPartyBtn = el('button', {
-        type: 'button', class: 'btn-small-outline', text: '+ Party',
+        type: 'button', text: 'Aggiungi al Party',
         title: 'Aggiungi questo barbaro alla tabella Party',
         onclick: function () {
           state.party.push({

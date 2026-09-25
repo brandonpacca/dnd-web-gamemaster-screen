@@ -19,7 +19,7 @@
 - Tabella Eventi Negativi paginata (10 righe alla volta) invece di un'unica lista lunga
 - Spell slot dei caster calcolati automaticamente da classe e livello (regole 5e 2014):
   caster completi, mezzi caster, caster a un terzo e Magia del Patto del Warlock
-- Pulsante "+ Party" sulle schede caster e barbaro per aggiungerli alla tabella Party
+- Pulsante "Aggiungi al Party" sulle schede caster e barbaro per aggiungerli alla tabella Party
 - Ire del barbaro calcolate automaticamente dal livello (regole 5e 2014), incluse le
   ire illimitate al 20° livello
 
