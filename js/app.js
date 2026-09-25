@@ -514,6 +514,79 @@
     return randChoice(pool);
   }
 
+  // ---- Spell slot progression by class/level (D&D 5e 2014 rules) ----
+  // Indice 0 = personaggio di 1° livello. Ogni riga elenca gli slot per livello
+  // incantesimo (1°-9° per i caster completi, 1°-5° per i mezzi caster, 1°-4°
+  // per i caster a un terzo). Il Warlock usa la Magia del Patto: un numero
+  // ridotto di slot che sono tutti dello stesso livello.
+
+  var FULL_CASTER_SLOTS = [
+    [2, 0, 0, 0, 0, 0, 0, 0, 0], [3, 0, 0, 0, 0, 0, 0, 0, 0], [4, 2, 0, 0, 0, 0, 0, 0, 0],
+    [4, 3, 0, 0, 0, 0, 0, 0, 0], [4, 3, 2, 0, 0, 0, 0, 0, 0], [4, 3, 3, 0, 0, 0, 0, 0, 0],
+    [4, 3, 3, 1, 0, 0, 0, 0, 0], [4, 3, 3, 2, 0, 0, 0, 0, 0], [4, 3, 3, 3, 1, 0, 0, 0, 0],
+    [4, 3, 3, 3, 2, 0, 0, 0, 0], [4, 3, 3, 3, 2, 1, 0, 0, 0], [4, 3, 3, 3, 2, 1, 0, 0, 0],
+    [4, 3, 3, 3, 2, 1, 1, 0, 0], [4, 3, 3, 3, 2, 1, 1, 0, 0], [4, 3, 3, 3, 2, 1, 1, 1, 0],
+    [4, 3, 3, 3, 2, 1, 1, 1, 0], [4, 3, 3, 3, 2, 1, 1, 1, 1], [4, 3, 3, 3, 3, 1, 1, 1, 1],
+    [4, 3, 3, 3, 3, 2, 1, 1, 1], [4, 3, 3, 3, 3, 2, 2, 1, 1]
+  ];
+
+  var HALF_CASTER_SLOTS = [
+    [0, 0, 0, 0, 0], [2, 0, 0, 0, 0], [3, 0, 0, 0, 0], [3, 0, 0, 0, 0], [4, 2, 0, 0, 0],
+    [4, 2, 0, 0, 0], [4, 3, 0, 0, 0], [4, 3, 0, 0, 0], [4, 3, 2, 0, 0], [4, 3, 2, 0, 0],
+    [4, 3, 3, 0, 0], [4, 3, 3, 0, 0], [4, 3, 3, 1, 0], [4, 3, 3, 1, 0], [4, 3, 3, 2, 0],
+    [4, 3, 3, 2, 0], [4, 3, 3, 3, 1], [4, 3, 3, 3, 1], [4, 3, 3, 3, 2], [4, 3, 3, 3, 2]
+  ];
+
+  var THIRD_CASTER_SLOTS = [
+    [0, 0, 0, 0], [0, 0, 0, 0], [2, 0, 0, 0], [3, 0, 0, 0], [3, 0, 0, 0], [3, 0, 0, 0],
+    [4, 2, 0, 0], [4, 2, 0, 0], [4, 2, 0, 0], [4, 3, 0, 0], [4, 3, 0, 0], [4, 3, 0, 0],
+    [4, 3, 2, 0], [4, 3, 2, 0], [4, 3, 2, 0], [4, 3, 3, 0], [4, 3, 3, 0], [4, 3, 3, 0],
+    [4, 3, 3, 1], [4, 3, 3, 1]
+  ];
+
+  // { conteggio slot, livello dello slot } per personaggio di livello 1-20
+  var WARLOCK_SLOTS = [
+    { count: 1, level: 1 }, { count: 2, level: 1 }, { count: 2, level: 2 }, { count: 2, level: 2 },
+    { count: 2, level: 3 }, { count: 2, level: 3 }, { count: 2, level: 4 }, { count: 2, level: 4 },
+    { count: 2, level: 5 }, { count: 2, level: 5 }, { count: 3, level: 5 }, { count: 3, level: 5 },
+    { count: 3, level: 5 }, { count: 3, level: 5 }, { count: 3, level: 5 }, { count: 3, level: 5 },
+    { count: 4, level: 5 }, { count: 4, level: 5 }, { count: 4, level: 5 }, { count: 4, level: 5 }
+  ];
+
+  var CASTER_CLASS_OPTIONS = [
+    { key: 'none', label: 'Nessuna classe (manuale)', progression: null },
+    { key: 'bardo', label: 'Bardo', progression: 'full' },
+    { key: 'chierico', label: 'Chierico', progression: 'full' },
+    { key: 'druido', label: 'Druido', progression: 'full' },
+    { key: 'stregone', label: 'Stregone', progression: 'full' },
+    { key: 'mago', label: 'Mago', progression: 'full' },
+    { key: 'paladino', label: 'Paladino', progression: 'half' },
+    { key: 'ranger', label: 'Ranger', progression: 'half' },
+    { key: 'guerriero_ek', label: 'Guerriero (Cavaliere Mistico)', progression: 'third' },
+    { key: 'ladro_at', label: 'Ladro (Ladro Arcano)', progression: 'third' },
+    { key: 'warlock', label: 'Warlock (Magia del Patto)', progression: 'warlock' }
+  ];
+
+  function computeCasterLevels(progression, charLevel) {
+    charLevel = Math.max(1, Math.min(20, Math.round(charLevel) || 1));
+    var idx = charLevel - 1;
+    var levels = [];
+    if (progression === 'warlock') {
+      var w = WARLOCK_SLOTS[idx];
+      if (w.count > 0) levels.push({ level: w.level, max: w.count, used: 0 });
+      return levels;
+    }
+    var table = progression === 'full' ? FULL_CASTER_SLOTS
+      : progression === 'half' ? HALF_CASTER_SLOTS
+        : progression === 'third' ? THIRD_CASTER_SLOTS
+          : null;
+    if (!table) return levels;
+    table[idx].forEach(function (count, i) {
+      if (count > 0) levels.push({ level: i + 1, max: count, used: 0 });
+    });
+    return levels;
+  }
+
   var state = loadState();
   var timerInterval = null;
 
@@ -827,13 +900,25 @@
     return el('div', { class: 'caster-card' }, [header, levelsWrap, addLevelForm]);
   }
 
+  function initCasterClassSelect() {
+    var select = document.getElementById('newCasterClass');
+    CASTER_CLASS_OPTIONS.forEach(function (opt) {
+      select.appendChild(el('option', { value: opt.key, text: opt.label }));
+    });
+  }
+
   document.getElementById('addCasterForm').addEventListener('submit', function (e) {
     e.preventDefault();
     var input = document.getElementById('newCasterName');
     var name = input.value.trim();
     if (!name) return;
-    state.casters.push({ id: uid(), name: name, levels: [] });
+    var classKey = document.getElementById('newCasterClass').value;
+    var charLevel = parseInt(document.getElementById('newCasterLevel').value, 10) || 1;
+    var classOpt = CASTER_CLASS_OPTIONS.filter(function (o) { return o.key === classKey; })[0];
+    var levels = classOpt && classOpt.progression ? computeCasterLevels(classOpt.progression, charLevel) : [];
+    state.casters.push({ id: uid(), name: name, levels: levels });
     input.value = '';
+    document.getElementById('newCasterLevel').value = '1';
     saveState();
     renderCasters();
   });
@@ -2441,6 +2526,7 @@
 
   setupSortableHeaders('partyTable', renderParty);
   document.getElementById('secPerRound').value = state.time.secPerRound;
+  initCasterClassSelect();
   initNameGenerators();
   initEncounterCrSelect();
   initWildMagicTable();

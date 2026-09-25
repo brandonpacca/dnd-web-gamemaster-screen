@@ -89,8 +89,13 @@
     <div id="casterList" class="caster-list"></div>
     <form id="addCasterForm" class="inline-form">
       <input type="text" id="newCasterName" placeholder="Nome del caster" required>
+      <select id="newCasterClass"></select>
+      <label class="stacked-label">Livello
+        <input type="number" id="newCasterLevel" min="1" max="20" value="1">
+      </label>
       <button type="submit">+ Aggiungi Caster</button>
     </form>
+    <p class="section-hint">Scegliendo una classe e un livello, gli slot incantesimo vengono calcolati automaticamente secondo le regole di D&amp;D 5e (2014); restano comunque modificabili a mano.</p>
   </section>
 
   <section class="hb-section" id="sez-ira">
