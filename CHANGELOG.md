@@ -17,6 +17,8 @@
 - Campo Note nel Diario di Sessione, separato dal riassunto
 - Ordine di Iniziativa spostato subito dopo il Riepilogo
 - Tabella Eventi Negativi paginata (10 righe alla volta) invece di un'unica lista lunga
+- Spell slot dei caster calcolati automaticamente da classe e livello (regole 5e 2014):
+  caster completi, mezzi caster, caster a un terzo e Magia del Patto del Warlock
 
 ## v1.0.0
 

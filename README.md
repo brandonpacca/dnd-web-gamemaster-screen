@@ -14,7 +14,7 @@ Tutti i dati vengono salvati automaticamente nel `localStorage` del browser: nes
 ### Tracciamento del combattimento
 - **Round**: contatore incrementabile/decrementabile
 - **Tempo trascorso**: cronometro avvia/pausa/azzera, con stima del tempo di gioco in base ai round (secondi/round configurabili)
-- **Spell slot dei caster**: aggiungi quanti incantatori servono, con slot per livello (1-9) e segnaposto cliccabili per marcare l'uso
+- **Spell slot dei caster**: aggiungi quanti incantatori servono; scegliendo classe e livello gli slot vengono calcolati automaticamente secondo le regole 5e (2014) — caster completi, mezzi caster, caster a un terzo (Cavaliere Mistico/Ladro Arcano) e Magia del Patto del Warlock — restando comunque modificabili a mano, con segnaposto cliccabili per marcare l'uso
 - **Ira del barbaro**: aggiungi più barbari, ciascuno con numero massimo di ire configurabile
 - **Tabella del party**: Nome PG / Razza / Classe / CA / PF / Iniziativa / Danni subiti / Condizione, ordinabile cliccando sulle intestazioni di colonna, con suggerimenti di razze/classi standard 5e
 - **Schede PNG in combattimento**: card separate per nemici e alleati con CA / PF / Iniziativa / Danni subiti / Condizione
