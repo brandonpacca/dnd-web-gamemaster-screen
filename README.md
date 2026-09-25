@@ -14,8 +14,8 @@ Tutti i dati vengono salvati automaticamente nel `localStorage` del browser: nes
 ### Tracciamento del combattimento
 - **Round**: contatore incrementabile/decrementabile
 - **Tempo trascorso**: cronometro avvia/pausa/azzera, con stima del tempo di gioco in base ai round (secondi/round configurabili)
-- **Spell slot dei caster**: aggiungi quanti incantatori servono; scegliendo classe e livello gli slot vengono calcolati automaticamente secondo le regole 5e (2014) — caster completi, mezzi caster, caster a un terzo (Cavaliere Mistico/Ladro Arcano) e Magia del Patto del Warlock — restando comunque modificabili a mano, con segnaposto cliccabili per marcare l'uso
-- **Ira del barbaro**: aggiungi più barbari, ciascuno con numero massimo di ire configurabile
+- **Spell slot dei caster**: aggiungi quanti incantatori servono; scegliendo classe e livello gli slot vengono calcolati automaticamente secondo le regole 5e (2014) — caster completi, mezzi caster, caster a un terzo (Cavaliere Mistico/Ladro Arcano) e Magia del Patto del Warlock — restando comunque modificabili a mano, con segnaposto cliccabili per marcare l'uso. Un pulsante "+ Party" aggiunge il caster alla tabella Party con la classe precompilata
+- **Ira del barbaro**: aggiungi più barbari; scegliendo il livello il numero di ire viene calcolato automaticamente secondo le regole 5e (2014), fino alle ire illimitate del 20° livello, restando comunque modificabile a mano. Un pulsante "+ Party" aggiunge il barbaro alla tabella Party
 - **Tabella del party**: Nome PG / Razza / Classe / CA / PF / Iniziativa / Danni subiti / Condizione, ordinabile cliccando sulle intestazioni di colonna, con suggerimenti di razze/classi standard 5e
 - **Schede PNG in combattimento**: card separate per nemici e alleati con CA / PF / Iniziativa / Danni subiti / Condizione
 - **Condizioni**: tutte le 14 condizioni della 5e (Accecato, Affascinato, Assordato, Spaventato, Afferrato, Incapacitato, Invisibile, Paralizzato, Pietrificato, Avvelenato, Prono, Trattenuto, Stordito, Privo di sensi) come segnaposto cliccabili, più il livello di Sfinimento (0-6), sia per il party sia per i PNG
