@@ -567,6 +567,15 @@
     { key: 'warlock', label: 'Warlock (Magia del Patto)', progression: 'warlock' }
   ];
 
+  // Numero di ire al giorno per il Barbaro, per livello 1-20 (regole 5e 2014).
+  // -1 al 20° livello indica ire illimitate.
+  var BARBARIAN_RAGE_COUNT = [2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, -1];
+
+  function computeBarbarianRages(level) {
+    level = Math.max(1, Math.min(20, Math.round(level) || 1));
+    return BARBARIAN_RAGE_COUNT[level - 1];
+  }
+
   function computeCasterLevels(progression, charLevel) {
     charLevel = Math.max(1, Math.min(20, Math.round(charLevel) || 1));
     var idx = charLevel - 1;
@@ -808,6 +817,19 @@
   }
 
   function renderCasterCard(caster) {
+    var addToPartyBtn = el('button', {
+      type: 'button', class: 'btn-small-outline', text: '+ Party',
+      title: 'Aggiungi questo caster alla tabella Party',
+      onclick: function () {
+        state.party.push({
+          id: uid(), name: caster.name, race: '', className: caster.className || '',
+          ac: 10, hpCur: 10, hpMax: 10, init: 0, damage: 0, conditions: [], exhaustion: 0
+        });
+        saveState();
+        renderParty();
+      }
+    });
+
     var header = el('div', { class: 'caster-header' }, [
       el('span', { class: 'name', text: caster.name }),
       el('div', {}, [
@@ -819,6 +841,7 @@
             renderCasters();
           }
         }),
+        addToPartyBtn,
         el('button', {
           type: 'button', class: 'btn-remove', text: '✕ Rimuovi',
           onclick: function () {
@@ -916,7 +939,8 @@
     var charLevel = parseInt(document.getElementById('newCasterLevel').value, 10) || 1;
     var classOpt = CASTER_CLASS_OPTIONS.filter(function (o) { return o.key === classKey; })[0];
     var levels = classOpt && classOpt.progression ? computeCasterLevels(classOpt.progression, charLevel) : [];
-    state.casters.push({ id: uid(), name: name, levels: levels });
+    var className = classOpt && classOpt.progression ? classOpt.label.replace(/\s*\([^)]*\)/, '') : '';
+    state.casters.push({ id: uid(), name: name, levels: levels, className: className });
     input.value = '';
     document.getElementById('newCasterLevel').value = '1';
     saveState();
@@ -932,61 +956,99 @@
       list.appendChild(el('div', { class: 'empty-hint', text: 'Nessun barbaro aggiunto. Aggiungine uno qui sotto.' }));
     }
     state.rages.forEach(function (r) {
-      var pips = el('div', { class: 'pips rage-pips' });
-      for (var i = 0; i < r.max; i++) {
-        (function (index) {
-          var used = index < r.used;
-          pips.appendChild(el('button', {
-            type: 'button',
-            class: 'pip' + (used ? ' used' : ''),
-            title: used ? 'Segna come disponibile' : 'Segna come usata',
-            onclick: function () {
-              if (index < r.used) { r.used = index; }
-              else { r.used = index + 1; }
+      var addToPartyBtn = el('button', {
+        type: 'button', class: 'btn-small-outline', text: '+ Party',
+        title: 'Aggiungi questo barbaro alla tabella Party',
+        onclick: function () {
+          state.party.push({
+            id: uid(), name: r.name, race: '', className: 'Barbaro',
+            ac: 10, hpCur: 10, hpMax: 10, init: 0, damage: 0, conditions: [], exhaustion: 0
+          });
+          saveState();
+          renderParty();
+        }
+      });
+
+      var headerButtons = el('div', {}, [
+        el('button', {
+          type: 'button', text: 'Riposo lungo',
+          onclick: function () { r.used = 0; saveState(); renderRages(); }
+        }),
+        addToPartyBtn,
+        el('button', {
+          type: 'button', class: 'btn-remove', text: '✕ Rimuovi',
+          onclick: function () {
+            if (confirm('Rimuovere "' + r.name + '"?')) {
+              state.rages = state.rages.filter(function (x) { return x.id !== r.id; });
               saveState();
               renderRages();
             }
-          }));
-        })(i);
-      }
-
-      var maxInput = el('input', { type: 'number', min: '1', value: r.max, style: 'width:56px' });
-      maxInput.addEventListener('change', function () {
-        var v = parseInt(maxInput.value, 10) || 1;
-        r.max = v;
-        r.used = Math.min(r.used, v);
-        saveState();
-        renderRages();
-      });
-
-      var card = el('div', { class: 'rage-card' }, [
-        el('div', { class: 'rage-header' }, [
-          el('span', { class: 'name', text: r.name }),
-          el('div', {}, [
-            el('button', {
-              type: 'button', text: 'Riposo lungo',
-              onclick: function () { r.used = 0; saveState(); renderRages(); }
-            }),
-            el('button', {
-              type: 'button', class: 'btn-remove', text: '✕ Rimuovi',
-              onclick: function () {
-                if (confirm('Rimuovere "' + r.name + '"?')) {
-                  state.rages = state.rages.filter(function (x) { return x.id !== r.id; });
-                  saveState();
-                  renderRages();
-                }
-              }
-            })
-          ])
-        ]),
-        el('div', { class: 'btn-row', style: 'justify-content:flex-start;align-items:center;margin-top:8px' }, [
-          pips,
-          el('span', { class: 'rage-count', text: (r.max - r.used) + '/' + r.max + ' disponibili' })
-        ]),
-        el('div', { style: 'margin-top:6px;font-size:0.85em' }, [
-          el('label', { text: 'Max ' }, [maxInput])
-        ])
+          }
+        })
       ]);
+
+      var header = el('div', { class: 'rage-header' }, [
+        el('span', { class: 'name', text: r.name }),
+        headerButtons
+      ]);
+
+      var card;
+      if (r.unlimited) {
+        var overrideInput = el('input', { type: 'number', min: '1', value: r.max || 6, style: 'width:56px' });
+        overrideInput.addEventListener('change', function () {
+          var v = parseInt(overrideInput.value, 10) || 1;
+          r.max = v;
+          r.used = Math.min(r.used, v);
+          r.unlimited = false;
+          saveState();
+          renderRages();
+        });
+        card = el('div', { class: 'rage-card' }, [
+          header,
+          el('div', { class: 'rage-unlimited-badge' }, [document.createTextNode('♾️ Ire illimitate (livello 20)')]),
+          el('div', { style: 'margin-top:6px;font-size:0.85em' }, [
+            el('label', { text: 'Oppure imposta un numero manuale: ' }, [overrideInput])
+          ])
+        ]);
+      } else {
+        var pips = el('div', { class: 'pips rage-pips' });
+        for (var i = 0; i < r.max; i++) {
+          (function (index) {
+            var used = index < r.used;
+            pips.appendChild(el('button', {
+              type: 'button',
+              class: 'pip' + (used ? ' used' : ''),
+              title: used ? 'Segna come disponibile' : 'Segna come usata',
+              onclick: function () {
+                if (index < r.used) { r.used = index; }
+                else { r.used = index + 1; }
+                saveState();
+                renderRages();
+              }
+            }));
+          })(i);
+        }
+
+        var maxInput = el('input', { type: 'number', min: '1', value: r.max, style: 'width:56px' });
+        maxInput.addEventListener('change', function () {
+          var v = parseInt(maxInput.value, 10) || 1;
+          r.max = v;
+          r.used = Math.min(r.used, v);
+          saveState();
+          renderRages();
+        });
+
+        card = el('div', { class: 'rage-card' }, [
+          header,
+          el('div', { class: 'btn-row', style: 'justify-content:flex-start;align-items:center;margin-top:8px' }, [
+            pips,
+            el('span', { class: 'rage-count', text: (r.max - r.used) + '/' + r.max + ' disponibili' })
+          ]),
+          el('div', { style: 'margin-top:6px;font-size:0.85em' }, [
+            el('label', { text: 'Max ' }, [maxInput])
+          ])
+        ]);
+      }
       list.appendChild(card);
     });
   }
@@ -994,13 +1056,15 @@
   document.getElementById('addRageForm').addEventListener('submit', function (e) {
     e.preventDefault();
     var nameInput = document.getElementById('newRageName');
-    var maxInput = document.getElementById('newRageMax');
+    var levelInput = document.getElementById('newRageLevel');
     var name = nameInput.value.trim();
-    var max = parseInt(maxInput.value, 10) || 1;
+    var level = parseInt(levelInput.value, 10) || 1;
     if (!name) return;
-    state.rages.push({ id: uid(), name: name, max: max, used: 0 });
+    var count = computeBarbarianRages(level);
+    var unlimited = count === -1;
+    state.rages.push({ id: uid(), name: name, max: unlimited ? 6 : count, used: 0, unlimited: unlimited });
     nameInput.value = '';
-    maxInput.value = '2';
+    levelInput.value = '3';
     saveState();
     renderRages();
   });

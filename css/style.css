@@ -431,6 +431,13 @@ input[type="number"] { width: 80px; }
   background: #b3541a;
 }
 
+.rage-unlimited-badge {
+  font-family: 'MedievalSharp', cursive;
+  color: var(--maroon-dark);
+  font-size: 1.1em;
+  margin-top: 8px;
+}
+
 .rage-count {
   font-size: 0.9em;
   color: #4a3420;
