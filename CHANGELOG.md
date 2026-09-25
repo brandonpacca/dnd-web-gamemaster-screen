@@ -1,6 +1,6 @@
 # Changelog
 
-## Non rilasciato
+## v1.1.0 — 2026-09-25
 
 - Tracker Quest/Obiettivi persistente, con checklist di sotto-obiettivi
 - Generatore Casuale di Mostri nel Compendio (filtrabile per Grado di Sfida), con dati
